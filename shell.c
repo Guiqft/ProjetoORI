@@ -1,5 +1,5 @@
 //Definições
-#define MAX 100 //Tamanho maximo para alocação de vetores
+#define MAX 1000 //Tamanho maximo para alocação de vetores
 
 //Lista com o nome de todos os comandos
 char *comandos_nomes[] = {"CT", "RT", "AT", "LT", "RI", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI"};
@@ -40,37 +40,6 @@ char *leitura_linha()
     return entrada;
 }
 
-//Função para separar os comandos da string lida
-char **divisao_linha(char *linha)
-{
-    int buf_size = 64, posicao = 0;
-    char **comandos = malloc(buf_size * sizeof(char *));
-    char *token;
-
-    token = strtok(linha, " ");
-    while (token != NULL)
-    {
-        comandos[posicao] = token;
-        posicao++;
-
-        if (posicao >= buf_size)
-        {
-            buf_size += 64;
-            comandos = realloc(comandos, buf_size * sizeof(char *));
-
-            if (!comandos)
-            {
-                fprintf(stderr, "ERRO: falha na alocacao\n");
-                exit(EXIT_FAILURE);
-            }
-        }
-        token = strtok(NULL, " ");
-    }
-    comandos[posicao] = NULL;
-
-    return comandos;
-}
-
 int interpretador(char **comandos)
 {
     int i;
@@ -89,6 +58,7 @@ int interpretador(char **comandos)
         else
         {
             printf("Erro de sintaxe! Digite novamente.");
+            return 0;
         }
     }
     return 0;

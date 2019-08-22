@@ -1,4 +1,4 @@
-//Bibliotecas
+//Bibliotecas e arquivos externos
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,12 +14,12 @@ int main()
 
     while (1) //Loop infinito até que seja cancelado pelo usuário
     {
-        printf("> ");
-        linha = remover_espacos(leitura_linha()); //Recebe a entrada e retira espacos em excesso
+        printf("\n> ");
+        linha = remover_espacos_duplos(leitura_linha()); //Recebe a entrada e retira espacos em excesso
         if (strcmp(linha, "sair") == 0)
             break;
-        argumentos = divisao_linha(linha); //Gerador da lista de comandos
-        interpretador(argumentos);         //Interpertador dos comandos
+        argumentos = separar_string(linha); //Gerador da lista de comandos
+        interpretador(argumentos);          //Interpertador dos comandos
     }
 
     free(linha);

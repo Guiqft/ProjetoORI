@@ -1,23 +1,18 @@
 //Definições
-#define MAX 100 //Tamanho maximo para alocação de vetores
+#define MAX 1000 //Tamanho maximo para alocação de vetores
 
 char maiuscula(char c)
 {
 
     {
-
-        if ((c >= 65) && (c <= 90))
-
-            c = c + 32;
-
-        else if ((c >= 97) && (c <= 132))
+        if ((c >= 97) && (c <= 132))
 
             c = c - 32;
     }
     return c;
 }
 
-char *remover_espacos(char str[])
+char *remover_espacos_duplos(char str[])
 { //remover espaços do meio
     int j = 1;
     for (int i = 1; str[i]; i++)
@@ -33,22 +28,22 @@ char *remover_espacos(char str[])
     return str;
 }
 
-char **separar_entrada(char *string, int tam)
+//Função para separar os comandos da string lida
+char **separar_string(char *linha)
 {
-    char **comandos = malloc(tam * sizeof(char *));
-    char *token;
     int posicao = 0;
+    char **lista = malloc(MAX * sizeof(char *));
+    char *token;
 
-    token = strtok(string, ";");
+    token = strtok(linha, " ;:");
     while (token != NULL)
     {
-        comandos[posicao] = token;
+        lista[posicao] = token;
         posicao++;
 
-        token = strtok(NULL, " ");
+        token = strtok(NULL, " ;:");
     }
-    comandos[posicao] = NULL;
+    lista[posicao] = NULL;
 
-    free(comandos);
-    return comandos;
+    return lista;
 }
