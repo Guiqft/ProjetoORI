@@ -1,8 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#define TOKEN_DELIMIT " "
-#define MAX 100
+
+#define TOKEN_DELIMIT " " //Separador da string com os comandos
+#define MAX 100           //Tamanho maximo para alocação de vetores
 
 int lsh_help(char **args);
 
@@ -12,49 +13,52 @@ int (*comandos_funcoes[])(char **) = {&lsh_help};
 
 int comandos_quantidade() { return sizeof(comandos_nomes) / sizeof(char *); }
 
+//Função para ler a string de comandos
 char *leitura_linha()
 {
-    char *entrada = (char *)malloc(sizeof(char) * MAX);
+    char *entrada = (char *)malloc(sizeof(char) * MAX); //Alocação do vetor
 
     for (int i = 0; i < MAX; i++)
     {
 
         if (i == MAX)
         {
-            entrada = realloc(entrada, strlen(entrada) * 2);
+            entrada = realloc(entrada, strlen(entrada) * 2); //Se ultrapassar o tamanho, realoca memória
         }
 
-        char c = getc(stdin);
+        char c = getc(stdin); //Leitura do caractere atual
 
-        if (c == EOF || c == '\n')
+        if (c == EOF || c == '\n') //Checa se a string acabou
         {
-            entrada[i] = '\0';
+            entrada[i] = '\0'; //Se acabou, coloca \0 no fim
             return entrada;
         }
         else
         {
-            entrada[i] = c;
+            entrada[i] = c; //Copia o caracter atual para o vetor
         }
     }
     free(entrada);
     return entrada;
 }
+
+//Função para separar os comandos da string lida
 char **divisao_linha(char *linha)
 {
-    int buf_size = 64, posicao = 0;
-    char **comandos = malloc(buf_size * sizeof(char *));
-    char *token;
+    int posicao = 0;
+    char **comandos = malloc(MAX * sizeof(char *)); //Matriz para armazenar cada comando em uma linha
+    char *token;                                    //Token para dividir a string
 
-    token = strtok(linha, TOKEN_DELIMIT);
+    token = strtok(linha, TOKEN_DELIMIT); //Divide a primeira parte da string
     while (token != NULL)
     {
-        comandos[posicao] = token;
+        comandos[posicao] = token; //Copia o token atual para a linha da matriz
         posicao++;
 
-        if (posicao >= buf_size)
+        if (posicao >= MAX) //Se ultrapassar o tamanho máximo da matriz
         {
-            buf_size += 64;
-            comandos = realloc(comandos, buf_size * sizeof(char *));
+            MAX *= 2;
+            comandos = realloc(comandos, MAX * sizeof(char *)); //Realoca memória na matriz
 
             if (!comandos)
             {
@@ -62,9 +66,9 @@ char **divisao_linha(char *linha)
                 exit(EXIT_FAILURE);
             }
         }
-        token = strtok(NULL, TOKEN_DELIMIT);
+        token = strtok(NULL, TOKEN_DELIMIT); //Divide as partes subsequentes da string
     }
-    comandos[posicao] = NULL;
+    comandos[posicao] = NULL; //Coloca NULL na ultima linha depois dos comandos
 
     return comandos;
 }
