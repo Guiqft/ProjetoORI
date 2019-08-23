@@ -52,8 +52,24 @@ int interpretador(char **comandos)
 
     for (i = 0; i < comandos_quantidade(); i++)
     {
+        if (strcmp(comandos[i], "BR") == 0)
+        {
+            if (strcmp(comandos[1], "N") == 0)
+                return (*comandos_funcoes[5])(comandos);
+            else if (strcmp(comandos[1], "U") == 0)
+                return (*comandos_funcoes[6])(comandos);
+        }
+        if (strcmp(comandos[i], "CI") == 0)
+        {
+            if (strcmp(comandos[1], "A") == 0)
+                return (*comandos_funcoes[9])(comandos);
+            else if (strcmp(comandos[1], "H") == 0)
+                return (*comandos_funcoes[10])(comandos);
+        }
+
         for (j = 0; j < comandos_quantidade(); j++)
         {
+
             if (strcmp(comandos[i], comandos_nomes[j]) == 0)
             {
                 flag = 1;
