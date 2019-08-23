@@ -5,7 +5,7 @@
 #include "utils.c"
 #include "comandos.c"
 #include "shell.c"
-//dasdsada
+
 //Função principal
 int main()
 {
