@@ -16,8 +16,12 @@ int main()
     {
         printf("\n> ");
         linha = remover_espacos_duplos(leitura_linha()); //Recebe a entrada e retira espacos em excesso
-        if (strcmp(linha, "sair") == 0)                  //Usuário fecha o terminal
+        if (strcmp(linha, "EB") == 0)                    //Usuário fecha o terminal
+        {
+            return (*comandos_funcoes[15])(argumentos);
             break;
+        }
+
         argumentos = separar_string(linha); //Gerador da lista de comandos
         interpretador(argumentos);          //Interpretador dos comandos
     }

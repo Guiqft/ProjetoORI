@@ -1,4 +1,5 @@
 int interpretador(char **comandos);
+int (*comandos_funcoes[])(char **);
 
 int operacao_ct(char **args)
 {
@@ -99,6 +100,11 @@ int operacao_gi(char **args)
     printf("Gera novamente o indice de tabela referente a chave, partindo do zero.\n\n");
     return 0;
 }
+int operacao_eb(char **args)
+{
+    printf("Encerra a interpretação e termina a execução do programa.\n\n");
+    return 0;
+}
 int operacao_arquivo(char **args)
 {
     FILE *arq;
@@ -123,8 +129,11 @@ int operacao_arquivo(char **args)
         resultado = remover_espacos_duplos(fgets(linha, MAX, arq)); // o 'fgets' lê até MAX caracteres ou até o '\n'
         if (resultado)                                              // Se foi possível ler
         {
-            if (strcmp(resultado, "sair") == 0)
+            if (strcmp(resultado, "EB") == 0)
+            {
+                return (*comandos_funcoes[15])(argumentos);
                 break;
+            }
             argumentos = separar_string(linha); //Gerador da lista de comandos
             interpretador(argumentos);          //Interpretador dos comandos
         }
