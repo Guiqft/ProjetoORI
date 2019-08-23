@@ -2,18 +2,19 @@
 #define MAX 1000 //Tamanho maximo para alocação de vetores
 
 //Lista com o nome de todos os comandos
-char *comandos_nomes[] = {"CT", "RT", "AT", "LT", "IR", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI", "RI"};
+char *comandos_nomes[] = {"ARQUIVO", "CT", "RT", "AT", "LT", "IR", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI", "RI"};
 
 //Função para contagem do número de comandos
 int comandos_quantidade() { return sizeof(comandos_nomes) / sizeof(char *); }
 
 //Lista com endereços para os nomes das funções que os comandos executam
-int (*comandos_funcoes[13])(char **) = {&operacao_ct, &operacao_rt, &operacao_at, &operacao_lt, &operacao_ir, &operacao_brN, &operacao_brU, &operacao_ar, &operacao_rr, &operacao_ciA, &operacao_ciH, &operacao_gi, &operacao_ri};
+int (*comandos_funcoes[14])(char **) = {&operacao_arquivo, &operacao_ct, &operacao_rt, &operacao_at, &operacao_lt, &operacao_ir, &operacao_brN, &operacao_brU, &operacao_ar, &operacao_rr, &operacao_ciA, &operacao_ciH, &operacao_gi, &operacao_ri};
 
 //Função para ler a string de comandos
 char *leitura_linha()
 {
     char *entrada = (char *)malloc(sizeof(char) * MAX); //Alocação do vetor
+    int count_espaco = 0;
 
     for (int i = 0; i < MAX; i++)
     {
@@ -69,7 +70,6 @@ int interpretador(char **comandos)
 
         for (j = 0; j < comandos_quantidade(); j++)
         {
-
             if (strcmp(comandos[i], comandos_nomes[j]) == 0)
             {
                 flag = 1;
