@@ -2,13 +2,13 @@
 #define MAX 1000 //Tamanho maximo para alocação de vetores
 
 //Lista com o nome de todos os comandos
-char *comandos_nomes[] = {"CT", "RT", "AT", "LT", "RI", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI"};
+char *comandos_nomes[] = {"CT", "RT", "AT", "LT", "IR", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI", "RI"};
 
 //Função para contagem do número de comandos
 int comandos_quantidade() { return sizeof(comandos_nomes) / sizeof(char *); }
 
 //Lista com endereços para os nomes das funções que os comandos executam
-int (*comandos_funcoes[12])(char **) = {&operacao_ct, &operacao_rt, &operacao_at, &operacao_lt, &operacao_ri, &operacao_brN, &operacao_brU, &operacao_ar, &operacao_rr, &operacao_ciA, &operacao_ciH, &operacao_gi};
+int (*comandos_funcoes[13])(char **) = {&operacao_ct, &operacao_rt, &operacao_at, &operacao_lt, &operacao_ir, &operacao_brN, &operacao_brU, &operacao_ar, &operacao_rr, &operacao_ciA, &operacao_ciH, &operacao_gi, &operacao_ri};
 
 //Função para ler a string de comandos
 char *leitura_linha()
@@ -42,23 +42,29 @@ char *leitura_linha()
 
 int interpretador(char **comandos)
 {
-    int i;
+    int i, j;
+    int flag = 0;
 
     if (comandos[0] == NULL)
     {
-        return 0;
+        return flag;
     }
 
     for (i = 0; i < comandos_quantidade(); i++)
     {
-        if (strcmp(comandos[i], comandos_nomes[i]) == 0)
+        for (j = 0; j < comandos_quantidade(); j++)
         {
-            return (*comandos_funcoes[i])(comandos);
+            if (strcmp(comandos[i], comandos_nomes[j]) == 0)
+            {
+                flag = 1;
+                return (*comandos_funcoes[j])(comandos);
+            }
         }
-        else
+
+        if (!flag)
         {
             printf("Erro de sintaxe! Digite novamente.");
-            return 0;
+            return flag;
         }
     }
     return 0;

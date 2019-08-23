@@ -13,7 +13,7 @@ char maiuscula(char c)
 }
 
 char *remover_espacos_duplos(char str[])
-{ //remover espaços do meio
+{
     int j = 1;
     for (int i = 1; str[i]; i++)
     {
