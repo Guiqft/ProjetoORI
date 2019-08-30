@@ -6,27 +6,17 @@
 #include "comandos.c"
 #include "shell.c"
 
+//Protótipos
+int loop_comandos();
+char *leitura_linha();
+int interpretador(char **comandos, int flag);
+char **separar_string(char *linha);
+char *remover_espacos_duplos(char str[]);
+char maiuscula(char c);
+
 //Função principal
 int main()
 {
-    char *linha;       //Entrada do usuário
-    char **argumentos; //Lista dos comandos a serem executados
-
-    while (1) //Loop infinito até que seja cancelado pelo usuário
-    {
-        printf("\n> ");
-        linha = remover_espacos_duplos(leitura_linha()); //Recebe a entrada e retira espacos em excesso
-        if (strcmp(linha, "EB") == 0)                    //Usuário fecha o terminal
-        {
-            return (*comandos_funcoes[15])(argumentos);
-            break;
-        }
-
-        argumentos = separar_string(linha); //Gerador da lista de comandos
-        interpretador(argumentos);          //Interpretador dos comandos
-    }
-
-    free(linha);
-    free(argumentos);
+    loop_comandos();
     return 0;
 }

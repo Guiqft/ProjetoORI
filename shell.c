@@ -41,10 +41,11 @@ char *leitura_linha()
     return entrada;
 }
 
-int interpretador(char **comandos)
+int interpretador(char **comandos, int flag)
 {
     int i, j;
-    int flag = 0;
+
+    flag = 0;
 
     if (comandos[0] == NULL)
     {
@@ -56,16 +57,29 @@ int interpretador(char **comandos)
         if (strcmp(comandos[i], "BR") == 0)
         {
             if (strcmp(comandos[1], "N") == 0)
+            {
+                flag = 1;
                 return (*comandos_funcoes[5])(comandos);
+            }
+
             else if (strcmp(comandos[1], "U") == 0)
+            {
+                flag = 1;
                 return (*comandos_funcoes[6])(comandos);
+            }
         }
         if (strcmp(comandos[i], "CI") == 0)
         {
             if (strcmp(comandos[1], "A") == 0)
+            {
+                flag = 1;
                 return (*comandos_funcoes[9])(comandos);
+            }
             else if (strcmp(comandos[1], "H") == 0)
+            {
+                flag = 1;
                 return (*comandos_funcoes[10])(comandos);
+            }
         }
 
         for (j = 0; j < comandos_quantidade(); j++)
@@ -83,5 +97,29 @@ int interpretador(char **comandos)
             return flag;
         }
     }
-    return 0;
+}
+
+//Função base para leitura infinita dos comandos
+int loop_comandos()
+{
+    char *linha;       //Entrada do usuário
+    char **argumentos; //Lista dos comandos a serem executados
+    int flag = 1;
+
+    do //Loop infinito até que seja cancelado pelo usuário
+    {
+        printf("\n> ");
+        linha = remover_espacos_duplos(leitura_linha()); //Recebe a entrada e retira espacos em excesso
+        if (strcmp(linha, "EB") == 0)                    //Usuário fecha o terminal
+        {
+            return (*comandos_funcoes[15])(argumentos);
+            break;
+        }
+
+        argumentos = separar_string(linha); //Gerador da lista de comandos
+        interpretador(argumentos, flag);    //Interpretador dos comandos
+    } while (flag);
+
+    free(linha);
+    free(argumentos);
 }

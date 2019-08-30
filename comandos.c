@@ -1,13 +1,14 @@
-int interpretador(char **comandos);
+int interpretador(char **comandos, int flag);
 int (*comandos_funcoes[])(char **);
 
 int operacao_ct(char **args)
 {
     char *nome_tabela = args[1];
-    printf("Tabela criada!\nNome da tabela: %s\n\n", nome_tabela);
-
-    printf("Registros:\n");
     int i = 2, flag = 0;
+
+    printf("Tabela criada!\nNome da tabela: %s\n\n", nome_tabela);
+    printf("Registros:\n");
+
     while (args[i] != NULL)
     {
         if (strcmp(args[i], "INT") == 0)
@@ -36,7 +37,7 @@ int operacao_ct(char **args)
         i++;
     }
     printf("\n");
-    return 0;
+    return flag;
 }
 
 int operacao_rt(char **args)
@@ -112,6 +113,7 @@ int operacao_arquivo(char **args)
     char linha[MAX];
     char *resultado;
     char **argumentos;
+    int flag;
 
     nome_arquivo = strlwr(args[1]); //passa o nome do arquivo para minusculo
 
@@ -135,7 +137,7 @@ int operacao_arquivo(char **args)
                 break;
             }
             argumentos = separar_string(linha); //Gerador da lista de comandos
-            interpretador(argumentos);          //Interpretador dos comandos
+            interpretador(argumentos, flag);    //Interpretador dos comandos
         }
     }
 
