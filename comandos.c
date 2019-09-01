@@ -115,7 +115,27 @@ int operacao_at(char **args)
 
 int operacao_lt(char **args)
 {
-    printf("Lista o nome de todas as tabelas existentes na base.\n\n");
+    DIR *dir;
+    struct dirent *lsdir;
+    char *token;
+    int cont = 0;
+
+    dir = opendir("./Data/");
+
+    printf("Tabelas existentes na base:\n");
+    while ((lsdir = readdir(dir)) != NULL)
+    {
+        if (cont >= 2)
+        {
+            token = strtok(lsdir->d_name, ".");
+            printf("-Tabela %d: %s\n", cont + 1, token);
+        }
+        cont++;
+    }
+
+    printf("\n\n");
+
+    closedir(dir);
     return 0;
 }
 int operacao_ir(char **args)
