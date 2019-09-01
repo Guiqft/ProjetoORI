@@ -50,14 +50,18 @@ char **separar_string(char *linha)
     int posicao = 0;
     char **lista = malloc(150 * sizeof(char *));
     char *token;
+    int cont = 0;
 
     token = strtok(linha, " ;:|");
     while (token != NULL)
     {
         lista[posicao] = token;
         posicao++;
-
-        token = strtok(NULL, " ;:|");
+        if (cont < 2)
+            token = strtok(NULL, " ;:|");
+        else
+            token = strtok(NULL, ";:|");
+        cont++;
     }
     lista[posicao] = NULL;
 
