@@ -7,63 +7,50 @@ int operacao_ct(char **args)
     char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
     strcpy(nome_tabela, args[1]);
 
-    if (!checar_arquivo_existente(nome_tabela))
+    if (checar_arquivo_existente(nome_tabela))
     {
         printf("A tabela %s ja existe.\n\n", args[1]);
         return (*comandos_funcoes[15])(args);
     }
 
     FILE *tabela;
-    char diretorio_arquivos[100] = "./Data/";
 
-    strcat(nome_tabela, ".txt");
-    strcat(diretorio_arquivos, nome_tabela);
-
-    free(nome_tabela);
-
-    if ((tabela = fopen(diretorio_arquivos, "w")) == NULL)
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "w")) == NULL)
     {
         printf("Erro na criacao do arquivo da tabela.\nTente novamente\n");
         return flag;
     }
 
-    printf("Tabela criada!\nNome da tabela: %s\n\n", args[1]);
-    printf("Registros:\n");
+    free(nome_tabela);
+
+    printf("Tabela criada!\nNome da tabela: %s.\n\n", args[1]);
 
     int i = 2;
     while (args[i] != NULL)
     {
         if (strcmp(args[i], "INT") == 0)
         {
-            printf("Tipo INT. Nome: %s\n", args[i + 1]);
             flag = 1;
-
             fprintf(tabela, "INT:%s|", args[i + 1]);
         }
         else if (strcmp(args[i], "FLT") == 0)
         {
-            printf("Tipo FLT. Nome: %s\n", args[i + 1]);
             flag = 1;
-
             fprintf(tabela, "FLT:%s|", args[i + 1]);
         }
         else if (strcmp(args[i], "STR") == 0)
         {
-            printf("Tipo STR. Nome: %s\n", args[i + 1]);
             flag = 1;
-
             fprintf(tabela, "STR:%s|", args[i + 1]);
         }
         else if (strcmp(args[i], "BIN") == 0)
         {
-            printf("Tipo BIN. Nome: %s\n", args[i + 1]);
             flag = 1;
-
             fprintf(tabela, "BIN:%s|", args[i + 1]);
         }
 
         if (!flag)
-            printf("Não foi digitado um tipo de registro válido!\n\n");
+            printf("Nao foi digitado um tipo de registro valido!\n\n");
         i++;
     }
 
@@ -78,30 +65,54 @@ int operacao_rt(char **args)
 {
     char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
     strcpy(nome_tabela, args[1]);
-    strcat(nome_tabela, ".txt");
 
-    char *diretorio_arquivos = (char *)malloc(sizeof(char) * (strlen(nome_tabela) + 8));
-    strcpy(diretorio_arquivos, "./Data/");
-    strcat(diretorio_arquivos, nome_tabela);
-
-    if (!checar_arquivo_existente(args[1]))
+    if (checar_arquivo_existente(args[1]))
     {
-        remove(diretorio_arquivos);
+        remove(adicionar_diretorio(nome_tabela, 1));
         printf("Tabela %s removida.\n\n", args[1]);
     }
     else
-        printf("A tabela %s nao existe.\n\n");
+        printf("A tabela %s nao existe.\n\n", args[1]);
 
     free(nome_tabela);
-    free(diretorio_arquivos);
     return 0;
 }
 
 int operacao_at(char **args)
 {
-    printf("Apresenta um resumo da tabela %s.\n\n ", args[1]);
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
+
+    FILE *tabela;
+
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+        return 0;
+    }
+
+    char *linha = (char *)malloc(sizeof(char) * 150);
+    fgets(linha, 150, tabela);
+
+    char **dados = separar_string(linha);
+    int i = 0;
+
+    printf("Resumo da tabela '%s':\n", nome_tabela);
+    printf("Registros:\n");
+
+    while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
+    {
+        if (i % 2 == 0)
+            printf("-Tipo %s, nome: '%s'.\n", dados[i], dados[i + 1]);
+        i++;
+    }
+
+    fclose(tabela);
+    free(nome_tabela);
+    free(linha);
     return 0;
 }
+
 int operacao_lt(char **args)
 {
     printf("Lista o nome de todas as tabelas existentes na base.\n\n");

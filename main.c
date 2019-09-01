@@ -9,13 +9,14 @@
 
 //Protótipos
 int loop_comandos();
-char *leitura_linha();
+int checar_arquivo_existente(char *nome_tabela);
 int interpretador(char **comandos, int flag);
-char **separar_string(char *linha);
-char **organizar_lista(char **lista);
+char *leitura_linha();
 char *remover_espacos_duplos(char str[]);
 char *maiuscula(char *string);
-int checar_arquivo_existente(char *nome_tabela);
+char *adicionar_diretorio(char *nome_tabela, int seletor);
+char **separar_string(char *linha);
+char **organizar_lista(char **lista);
 
 //Função principal
 int main()

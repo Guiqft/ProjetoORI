@@ -1,7 +1,3 @@
-//Definições
-#define MAX 1000 //Tamanho maximo para alocação de vetores
-char **organizar_lista(char **lista);
-
 //Função que transforma uma string em maiuscula e a retorna
 char *maiuscula(char *string)
 {
@@ -32,28 +28,6 @@ char *remover_espacos_duplos(char str[])
     return str;
 }
 
-//Função para separar os comandos da string lida
-char **separar_string(char *linha)
-{
-    int posicao = 0;
-    char **lista = malloc(MAX * sizeof(char *));
-    char *token;
-
-    token = strtok(linha, " ;:");
-    while (token != NULL)
-    {
-        lista[posicao] = token;
-        posicao++;
-
-        token = strtok(NULL, " ;:");
-    }
-    lista[posicao] = NULL;
-
-    organizar_lista(lista);
-
-    return lista;
-}
-
 //Função que transforma os comandos em maiusculos, para comparação no interpretador
 char **organizar_lista(char **lista)
 {
@@ -69,30 +43,61 @@ char **organizar_lista(char **lista)
     return lista;
 }
 
+//Função para separar os comandos da string lida
+//Os separadores são: ' ', ';', ':' e '|'
+char **separar_string(char *linha)
+{
+    int posicao = 0;
+    char **lista = malloc(150 * sizeof(char *));
+    char *token;
+
+    token = strtok(linha, " ;:|");
+    while (token != NULL)
+    {
+        lista[posicao] = token;
+        posicao++;
+
+        token = strtok(NULL, " ;:|");
+    }
+    lista[posicao] = NULL;
+
+    organizar_lista(lista);
+
+    return lista;
+}
+
+//Função para concatenar o diretório das tabelas em uma string com o nome da tabela
+//Se o seletor for 1, adiciona o "./Data/" no começo e o .txt no fim
+//Se o seletor for 0, adiciona apenas o .txt no fim
+char *adicionar_diretorio(char *nome_tabela, int seletor)
+{
+    char *nome_arquivo = (char *)malloc(sizeof(char) * strlen(nome_tabela));
+    strcpy(nome_arquivo, nome_tabela);
+    strcat(nome_arquivo, ".txt");
+
+    if (seletor)
+    {
+        char *diretorio_arquivos = (char *)malloc(sizeof(char) * (strlen(nome_arquivo) + 8));
+        strcpy(diretorio_arquivos, "./Data/");
+        strcat(diretorio_arquivos, nome_arquivo);
+        return diretorio_arquivos;
+    }
+    return nome_arquivo;
+}
+
 //Função para checar se o arquivo da tabela ja existe no diretorio './Data/'
-//Retorna 1 se a tabela não existir e 0 se existir
+//Retorna 0 se a tabela não existir e 1 se existir
 int checar_arquivo_existente(char *nome_tabela)
 {
     DIR *dir;
     struct dirent *lsdir;
 
-    char *nome_arquivo = (char *)malloc(sizeof(char) * strlen(nome_tabela));
-    strcpy(nome_arquivo, nome_tabela);
-    strcat(nome_arquivo, ".txt");
-
     dir = opendir("./Data/");
 
     while ((lsdir = readdir(dir)) != NULL)
-    {
-        if (strcmp(maiuscula(lsdir->d_name), maiuscula(nome_arquivo)) == 0)
-        {
-            free(nome_arquivo);
-            return 0;
-        }
-    }
+        if (strcmp(maiuscula(lsdir->d_name), maiuscula(adicionar_diretorio(nome_tabela, 0))) == 0)
+            return 1;
 
     closedir(dir);
-
-    free(nome_arquivo);
-    return 1;
+    return 0;
 }
