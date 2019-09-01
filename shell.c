@@ -13,31 +13,17 @@ int (*comandos_funcoes[15])(char **) = {&operacao_arquivo, &operacao_ct, &operac
 //Função para ler a string de comandos
 char *leitura_linha()
 {
-    char *entrada = (char *)malloc(sizeof(char) * MAX); //Alocação do vetor
-    int count_espaco = 0;
+    char *entrada = (char *)malloc(sizeof(char)); //Alocação do vetor
+    int i = 0, j = 2;
 
-    for (int i = 0; i < MAX; i++)
+    while ((entrada[i] = getchar()) != '\n')
     {
-
-        if (i == MAX)
-        {
-            entrada = realloc(entrada, strlen(entrada) * 2); //Se ultrapassar o tamanho, realoca memória
-        }
-
-        char c = getc(stdin); //Leitura do caractere atual
-
-        if (c == EOF || c == '\n') //Checa se a string acabou
-        {
-            entrada[i] = '\0'; //Se acabou, coloca \0 no fim
-            return entrada;
-        }
-        else
-        {
-            entrada[i] = maiuscula(c); //Transforma o caractere em maiusculo e copia para o vetor
-        }
+        entrada = (char *)realloc(entrada, sizeof(char) * j);
+        i++;
+        j++;
     }
 
-    free(entrada);
+    entrada[i] = '\0';
     return entrada;
 }
 
@@ -93,7 +79,7 @@ int interpretador(char **comandos, int flag)
 
         if (!flag)
         {
-            printf("Erro de sintaxe! Digite novamente.");
+            printf("Erro de sintaxe! Digite novamente.\n\n");
             return flag;
         }
     }
@@ -106,7 +92,7 @@ int loop_comandos()
     char **argumentos; //Lista dos comandos a serem executados
     int flag = 1;
 
-    do //Loop infinito até que seja cancelado pelo usuário
+    do
     {
         printf("\n> ");
         linha = remover_espacos_duplos(leitura_linha()); //Recebe a entrada e retira espacos em excesso
@@ -118,8 +104,10 @@ int loop_comandos()
 
         argumentos = separar_string(linha); //Gerador da lista de comandos
         interpretador(argumentos, flag);    //Interpretador dos comandos
-    } while (flag);
+    } while (flag);                         //Loop infinito até que seja cancelado pelo usuário
 
     free(linha);
     free(argumentos);
+
+    return flag;
 }
