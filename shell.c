@@ -1,6 +1,3 @@
-//Definições
-#define MAX 1000 //Tamanho maximo para alocação de vetores
-
 //Lista com o nome de todos os comandos
 char *comandos_nomes[] = {"ARQUIVO", "CT", "RT", "AT", "LT", "IR", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI", "RI", "EB"};
 
@@ -30,13 +27,10 @@ char *leitura_linha()
 int interpretador(char **comandos, int flag)
 {
     int i, j;
-
     flag = 0;
 
     if (comandos[0] == NULL)
-    {
         return flag;
-    }
 
     for (i = 0; i < comandos_quantidade(); i++)
     {

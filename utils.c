@@ -86,12 +86,13 @@ int checar_arquivo_existente(char *nome_tabela)
     {
         if (strcmp(maiuscula(lsdir->d_name), maiuscula(nome_arquivo)) == 0)
         {
-            printf("A tabela %s ja existe.\n\n", nome_tabela);
+            free(nome_arquivo);
             return 0;
         }
     }
 
     closedir(dir);
 
+    free(nome_arquivo);
     return 1;
 }

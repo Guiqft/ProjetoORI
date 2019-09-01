@@ -8,13 +8,18 @@ int operacao_ct(char **args)
     strcpy(nome_tabela, args[1]);
 
     if (!checar_arquivo_existente(nome_tabela))
+    {
+        printf("A tabela %s ja existe.\n\n", args[1]);
         return (*comandos_funcoes[15])(args);
+    }
 
     FILE *tabela;
     char diretorio_arquivos[100] = "./Data/";
 
     strcat(nome_tabela, ".txt");
     strcat(diretorio_arquivos, nome_tabela);
+
+    free(nome_tabela);
 
     if ((tabela = fopen(diretorio_arquivos, "w")) == NULL)
     {
@@ -79,7 +84,7 @@ int operacao_rt(char **args)
     strcpy(diretorio_arquivos, "./Data/");
     strcat(diretorio_arquivos, nome_tabela);
 
-    if (!checar_arquivo_existente)
+    if (!checar_arquivo_existente(args[1]))
     {
         remove(diretorio_arquivos);
         printf("Tabela %s removida.\n\n", args[1]);
@@ -156,27 +161,25 @@ int operacao_eb(char **args)
 int operacao_arquivo(char **args)
 {
     FILE *arq;
-    char *nome_arquivo;
-    char linha[MAX];
+    char *nome_arquivo = args[1];
+    char linha[150];
     char *resultado;
     char **argumentos;
-    int flag;
+    int flag = 0;
 
-    nome_arquivo = strlwr(args[1]); //passa o nome do arquivo para minusculo
-
-    // Abre um arquivo TEXTO para LEITURA
+    // Abre o arquivo de comandos
     arq = fopen(nome_arquivo, "rt");
     if (arq == NULL) // Se houve erro na abertura
     {
         printf("Problemas na abertura do arquivo '%s'. Tente novamente.\n\n", nome_arquivo);
-        return 0;
+        return flag;
     }
 
     while (!feof(arq))
     {
         // Lê uma linha (inclusive com o '\n')
-        resultado = remover_espacos_duplos(fgets(linha, MAX, arq)); // o 'fgets' lê até MAX caracteres ou até o '\n'
-        if (resultado)                                              // Se foi possível ler
+        resultado = remover_espacos_duplos(fgets(linha, 150, arq)); // o 'fgets' lê até 150 caracteres ou até o '\n'
+        if (resultado)
         {
             if (strcmp(resultado, "EB") == 0)
             {
@@ -189,5 +192,5 @@ int operacao_arquivo(char **args)
     }
 
     fclose(arq);
-    return 0;
+    return flag;
 }
