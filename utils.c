@@ -14,36 +14,36 @@ char *maiuscula(char *string)
 int verifica_int(char *string)
 {
     for (int i = 0; i < strlen(string); i++)
-        {
+    {
         if ((string[i] < 48) || (string[i] > 57))
             return 1;
-        }
+    }
     return 0;
 }
 int verifica_flt(char *string)
 {
-  int j=0;
+    int j = 0;
     for (int i = 0; i < strlen(string); i++)
+    {
+        if ((string[i] < 48) || (string[i] > 57))
         {
-        if ((string[i] < 48) || (string[i] > 57) )
-        {
-          if(string[i] != 46)
+            if (string[i] != 46)
+                return 1;
+            else
+                j++;
+        }
+        if (j > 1)
             return 1;
-          else
-            j++;
-        }
-        if(j>1)
-          return 1;
-        }
+    }
     return 0;
 }
 int verifica_str(char *string)
 {
     for (int i = 0; i < strlen(string); i++)
-        {
+    {
         if (string[i] == 35 || string[i] == 124)
             return 1;
-        }
+    }
     return 0;
 }
 //Função que recebe uma string e a retorna sem espaços duplos
@@ -96,6 +96,28 @@ char **separar_string(char *linha)
             token = strtok(NULL, " ;:|");
         else
             token = strtok(NULL, ";:|");
+        cont++;
+    }
+    lista[posicao] = NULL;
+
+    organizar_lista(lista);
+
+    return lista;
+}
+
+char **separar_busca(char *linha)
+{
+    int posicao = 0;
+    char **lista = malloc(150 * sizeof(char *));
+    char *token;
+    int cont = 0;
+
+    token = strtok(linha, ";:|");
+    while (token != NULL)
+    {
+        lista[posicao] = token;
+        posicao++;
+        token = strtok(NULL, ";:|");
         cont++;
     }
     lista[posicao] = NULL;

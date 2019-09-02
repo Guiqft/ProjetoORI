@@ -16,6 +16,7 @@ char *remover_espacos_duplos(char str[]);
 char *maiuscula(char *string);
 char *adicionar_diretorio(char *nome_tabela, int seletor);
 char **separar_string(char *linha);
+char **separar_busca(char *linha);
 char **organizar_lista(char **lista);
 
 //Função principal
