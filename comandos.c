@@ -138,9 +138,86 @@ int operacao_lt(char **args)
     closedir(dir);
     return 0;
 }
+//int operacao_lt(char **args)
+//{
+//    printf("Lista o nome de todas as tabelas existentes na base.\n\n");
+//    return 0;
+//}
 int operacao_ir(char **args)
 {
-    printf("Insere o registro no arquivo de tabela, usando a politica de insercao adequada.\n\n");
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
+    FILE *tabela;
+    FILE *aux;
+    char *linha = (char *)malloc(sizeof(char) * 150);
+
+    if ((aux = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+  {
+      printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+      return 0;
+  }
+
+    fgets(linha, 150, aux);
+    char **dados = separar_string(linha);
+    int i = 0;
+    int j = 2;
+    while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
+    {
+      if(strcmp(dados[i],"INT")== 0)
+      {
+        if(verifica_int(args[j])==1)
+        {
+          printf("Argumento invalido em campo INT");
+          return 0;
+        }
+      }
+        else if(strcmp(dados[i],"FLT")== 0)
+        {
+          if(verifica_flt(args[j])==1)
+          {
+            printf("Argumento invalido em campo FLOAT");
+            return 0;
+          }
+        }
+        else if(strcmp(dados[i],"STR")== 0)
+        {
+          if(verifica_str(args[j])==1)
+          {
+            printf("Nao use # ou |");
+            return 0;
+          }
+        }
+        else if(strcmp(dados[i],"BIN")== 0)
+        {
+          if(verifica_str(args[j])==1)
+          {
+            printf("Nao use # ou |");
+            return 0;
+          }
+        }
+      i=i+2;
+      j++;
+    }
+
+    fclose(aux);
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "a")) == NULL)
+  {
+      printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+      return 0;
+  }
+
+      i = 2;
+      while (args[i] != NULL)
+  {
+      fprintf(tabela, "%s|",args[i]);
+      i++;
+  }
+    fprintf(tabela, "%s\n", "#");
+
+    fclose(tabela);
+    free(nome_tabela);
+    free(dados);
+    free(linha);
     return 0;
 }
 int operacao_brN(char **args)
