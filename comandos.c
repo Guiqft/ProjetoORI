@@ -1,77 +1,403 @@
-int interpretador(char **comandos);
+int interpretador(char **comandos, int flag);
 int (*comandos_funcoes[])(char **);
 
 int operacao_ct(char **args)
 {
-    char *nome_tabela = args[1];
-    printf("Tabela criada!\nNome da tabela: %s\n\n", nome_tabela);
+    int flag = 0;
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
 
-    printf("Registros:\n");
-    int i = 2, flag = 0;
+    if (checar_arquivo_existente(nome_tabela))
+    {
+        printf("A tabela %s ja existe.\n\n", args[1]);
+        return (*comandos_funcoes[15])(args);
+    }
+
+    FILE *tabela;
+
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "w")) == NULL)
+    {
+        printf("Erro na criacao do arquivo da tabela.\nTente novamente\n");
+        return flag;
+    }
+
+    free(nome_tabela);
+
+    printf("Tabela criada!\nNome da tabela: %s.\n\n", args[1]);
+
+    int i = 2;
     while (args[i] != NULL)
     {
         if (strcmp(args[i], "INT") == 0)
         {
-            printf("Tipo INT. Nome: %s\n", args[i + 1]);
             flag = 1;
+            fprintf(tabela, "INT:%s|", args[i + 1]);
         }
         else if (strcmp(args[i], "FLT") == 0)
         {
-            printf("Tipo FLT. Nome: %s\n", args[i + 1]);
             flag = 1;
+            fprintf(tabela, "FLT:%s|", args[i + 1]);
         }
         else if (strcmp(args[i], "STR") == 0)
         {
-            printf("Tipo STR. Nome: %s\n", args[i + 1]);
             flag = 1;
+            fprintf(tabela, "STR:%s|", args[i + 1]);
         }
         else if (strcmp(args[i], "BIN") == 0)
         {
-            printf("Tipo BIN. Nome: %s\n", args[i + 1]);
             flag = 1;
+            fprintf(tabela, "BIN:%s|", args[i + 1]);
         }
 
         if (!flag)
-            printf("Não foi digitado um tipo de registro válido!\n\n");
+            printf("Nao foi digitado um tipo de registro valido!\n\n");
         i++;
     }
+
+    fprintf(tabela, "\n");
     printf("\n");
-    return 0;
+
+    fclose(tabela);
+    return flag;
 }
 
 int operacao_rt(char **args)
 {
-    printf("Tabela %s removida.\n\n", args[1]);
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
+
+    if (checar_arquivo_existente(args[1]))
+    {
+        remove(adicionar_diretorio(nome_tabela, 1));
+        printf("Tabela %s removida.\n\n", args[1]);
+    }
+    else
+        printf("A tabela %s nao existe.\n\n", args[1]);
+
+    free(nome_tabela);
     return 0;
 }
+
 int operacao_at(char **args)
 {
-    printf("Apresenta um resumo da tabela %s.\n\n ", args[1]);
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
+
+    FILE *tabela;
+
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+        return 0;
+    }
+
+    char *linha = (char *)malloc(sizeof(char) * 150);
+    fgets(linha, 150, tabela);
+
+    char **dados = separar_string(linha);
+    int i = 0;
+
+    printf("Resumo da tabela '%s':\n", nome_tabela);
+    printf("Registros:\n");
+
+    while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
+    {
+        if (i % 2 == 0)
+            printf("-Tipo %s, nome: '%s'.\n", dados[i], dados[i + 1]);
+        i++;
+    }
+
+    fclose(tabela);
+    free(nome_tabela);
+    free(linha);
     return 0;
 }
+
 int operacao_lt(char **args)
 {
-    printf("Lista o nome de todas as tabelas existentes na base.\n\n");
+    DIR *dir;
+    struct dirent *lsdir;
+    char *token;
+    int cont = 0;
+
+    dir = opendir("./Data/");
+
+    printf("Tabelas existentes na base:\n");
+    while ((lsdir = readdir(dir)) != NULL)
+    {
+        if (cont >= 2)
+        {
+            token = strtok(lsdir->d_name, ".");
+            printf("-Tabela %d: %s\n", cont + 1, token);
+        }
+        cont++;
+    }
+
+    printf("\n\n");
+
+    closedir(dir);
     return 0;
 }
+
 int operacao_ir(char **args)
 {
-    printf("Insere o registro no arquivo de tabela, usando a politica de insercao adequada.\n\n");
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
+    FILE *tabela;
+    FILE *aux;
+    char *linha = (char *)malloc(sizeof(char) * 150);
+
+    if ((aux = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+        return 0;
+    }
+
+    fgets(linha, 150, aux);
+    char **dados = separar_string(linha);
+    int i = 0;
+    int j = 2;
+    while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
+    {
+        if (strcmp(dados[i], "INT") == 0)
+        {
+            if (verifica_int(args[j]) == 1)
+            {
+                printf("Argumento invalido em campo INT\n");
+                return 0;
+            }
+        }
+        else if (strcmp(dados[i], "FLT") == 0)
+        {
+            if (verifica_flt(args[j]) == 1)
+            {
+                printf("Argumento invalido em campo FLOAT\n");
+                return 0;
+            }
+        }
+        else if (strcmp(dados[i], "STR") == 0)
+        {
+            if (verifica_str(args[j]) == 1)
+            {
+                printf("Nao use '#' ou '|'\n");
+                return 0;
+            }
+        }
+        else if (strcmp(dados[i], "BIN") == 0)
+        {
+            if (verifica_str(args[j]) == 1)
+            {
+                printf("Nao use '#' ou '|'\n");
+                return 0;
+            }
+        }
+        i = i + 2;
+        j++;
+    }
+
+    fclose(aux);
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "a")) == NULL)
+    {
+        printf("IR Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+        return 0;
+    }
+
+    i = 2;
+    while (args[i] != NULL)
+    {
+        fprintf(tabela, "%s|", args[i]);
+        i++;
+    }
+    fprintf(tabela, "%s\n", "#");
+
+    fclose(tabela);
+    free(nome_tabela);
+    free(dados);
+    free(linha);
     return 0;
 }
 int operacao_brN(char **args)
 {
-    printf("Busca em tabela todos os registros que satisfacam o criterio de busca.\n\n");
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
+
+    FILE *tabela;
+
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+        return 0;
+    }
+
+    char *linha = (char *)malloc(sizeof(char) * 150);
+    fgets(linha, 150, tabela);
+    char **dados = separar_string(linha);
+    int i = 1, flag=0;
+
+    char *nome_arquivo = (char *)malloc(sizeof(char) * strlen(nome_tabela));
+    strcpy(nome_arquivo, nome_tabela);
+    strcat(nome_arquivo, "_Busca");
+
+    while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
+        {
+            if (strcmp(args[2],dados[i])==0){
+                flag = 1;
+                if(checar_arquivo_existente(nome_arquivo))
+                    remove(adicionar_diretorio(nome_arquivo, 1));
+            }
+            i=i+2;
+        }
+
+    if(!flag)
+        printf("\nNão existe o campo %s nesta tabela, tente novamente!\n", args[2]);
+
+    free(dados);
+    flag=0;
+
+    while(fgets(linha,150,tabela)!=NULL){ //Enquanto não chegou no fim do arquivo
+        char *linha_achada = (char *)malloc(sizeof(char) * 150);
+        strcpy(linha_achada, linha);
+        char **dados = separar_busca(linha);
+        i=0;
+        while (dados[i] != NULL && strcmp(dados[i], "#") != 0){//Enquanto não chegou no fim da linha
+            if (strcmp(args[3],dados[i])==0){
+                flag=1;
+                FILE *tabela2;
+                if ((tabela2 = fopen(adicionar_diretorio(nome_arquivo, 1), "a")) == NULL){
+                    printf("\nErro na criacao do arquivo da tabela.\nTente novamente\n");
+                    return 0;
+                }
+                else{
+                    fprintf(tabela2, "%s", linha_achada);
+                    printf("\nResultado da busca: %s", linha_achada);
+                    printf("Dados salvos na pasta: %s\n", nome_arquivo);
+                }
+                fclose(tabela2);
+                free(linha_achada);
+            }
+            i++;
+        }
+
+    }
+    if(flag==0){
+        printf("\nNao foram encontrados nenhum dado referente a pesquisa.\n");
+    }
+
+    fclose(tabela);
+    free(nome_arquivo);
+    free(dados);
+    free(nome_tabela);
+    free(linha);
     return 0;
 }
 int operacao_brU(char **args)
 {
-    printf("Busca em tabela o primeiro registro que satisfaca o criterio de busca.\n\n");
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
+
+    FILE *tabela;
+
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+        return 0;
+    }
+
+    char *linha = (char *)malloc(sizeof(char) * 150);
+    fgets(linha, 150, tabela);
+    char **dados = separar_string(linha);
+    int i = 1, flag=0;
+
+    char *nome_arquivo = (char *)malloc(sizeof(char) * strlen(nome_tabela));
+    strcpy(nome_arquivo, nome_tabela);
+    strcat(nome_arquivo, "_Busca");
+
+    while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
+        {
+            if (strcmp(args[2],dados[i])==0){
+                flag = 1;
+                if(checar_arquivo_existente(nome_arquivo))
+                    remove(adicionar_diretorio(nome_arquivo, 1));
+            }
+            i=i+2;
+        }
+
+    if(!flag)
+        printf("\nNão existe o campo %s nesta tabela, tente novamente!\n", args[2]);
+
+    free(dados);
+    flag=0;
+
+    while((fgets(linha,150,tabela)!=NULL)&&(flag==0)){ //Enquanto não chegou no fim do arquivo
+        char *linha_achada = (char *)malloc(sizeof(char) * 150);
+        strcpy(linha_achada, linha);
+        char **dados = separar_busca(linha);
+        i=0;
+        while (dados[i] != NULL && strcmp(dados[i], "#") != 0){//Enquanto não chegou no fim da linha
+            if (strcmp(args[3],dados[i])==0){
+                flag=1;
+                FILE *tabela2;
+                if ((tabela2 = fopen(adicionar_diretorio(nome_arquivo, 1), "a")) == NULL){
+                    printf("\nErro na criacao do arquivo da tabela.\nTente novamente\n");
+                    return 0;
+                }
+                else{
+                    fprintf(tabela2, "%s", linha_achada);
+                    printf("\nPrimeiro resultado da busca: %s", linha_achada);
+                    printf("Dados salvos na pasta: %s\n", nome_arquivo);
+                }
+                fclose(tabela2);
+                free(linha_achada);
+            }
+            i++;
+        }
+
+    }
+    if(flag==0){
+        printf("\nNao foram encontrados nenhum dado referente a pesquisa.\n");
+    }
+
+    fclose(tabela);
+    free(nome_arquivo);
+    free(dados);
+    free(nome_tabela);
+    free(linha);
     return 0;
 }
 int operacao_ar(char **args)
 {
-    printf("Apresenta na tabela o valor dos registros retornados pela ultima busca.\n\n");
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela, args[1]);
+    strcat(nome_tabela, "_Busca");
+
+    FILE *tabela;
+
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+        return 0;
+    }
+
+    char *linha = (char *)malloc(sizeof(char) * 150);
+    int i = 0;
+
+    printf("Resultado(s) da(s) ultima busca: ");
+
+    while(fgets(linha,150,tabela)!=NULL){
+        char **dados = separar_busca(linha);
+        i=0;
+        printf("\n");
+        while (dados[i] != NULL && strcmp(dados[i], "#") != 0)
+        {
+            printf("%s|", dados[i]);
+            i++;
+        }
+        free(dados);
+    }
+
+    fclose(tabela);
+    free(nome_tabela);
+    free(linha);
     return 0;
 }
 int operacao_rr(char **args)
@@ -102,32 +428,31 @@ int operacao_gi(char **args)
 }
 int operacao_eb(char **args)
 {
-    printf("Encerra a interpretação e termina a execução do programa.\n\n");
+    printf("Encerra a interpretaÃ§Ã£o e termina a execuÃ§Ã£o do programa.\n\n");
     return 0;
 }
 int operacao_arquivo(char **args)
 {
     FILE *arq;
-    char *nome_arquivo;
-    char linha[MAX];
+    char *nome_arquivo = args[1];
+    char linha[150];
     char *resultado;
     char **argumentos;
+    int flag = 0;
 
-    nome_arquivo = strlwr(args[1]); //passa o nome do arquivo para minusculo
-
-    // Abre um arquivo TEXTO para LEITURA
+    // Abre o arquivo de comandos
     arq = fopen(nome_arquivo, "rt");
     if (arq == NULL) // Se houve erro na abertura
     {
         printf("Problemas na abertura do arquivo '%s'. Tente novamente.\n\n", nome_arquivo);
-        return 0;
+        return flag;
     }
 
     while (!feof(arq))
     {
-        // Lê uma linha (inclusive com o '\n')
-        resultado = remover_espacos_duplos(fgets(linha, MAX, arq)); // o 'fgets' lê até MAX caracteres ou até o '\n'
-        if (resultado)                                              // Se foi possível ler
+        // LÃª uma linha (inclusive com o '\n')
+        resultado = remover_espacos_duplos(fgets(linha, 150, arq)); // o 'fgets' lÃª atÃ© 150 caracteres ou atÃ© o '\n'
+        if (resultado)
         {
             if (strcmp(resultado, "EB") == 0)
             {
@@ -135,10 +460,10 @@ int operacao_arquivo(char **args)
                 break;
             }
             argumentos = separar_string(linha); //Gerador da lista de comandos
-            interpretador(argumentos);          //Interpretador dos comandos
+            interpretador(argumentos, flag);    //Interpretador dos comandos
         }
     }
 
     fclose(arq);
-    return 0;
+    return flag;
 }
