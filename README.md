@@ -42,7 +42,7 @@ IR CLIENTES 50;JOAO PASCOAL;jp2.crt
 Grupo A2:
 
 * **Gabriel Fernandes Roza** - RA: 760688	
-* [**Guilherme Oliveira**](https://github.com/Guiqft) - RA: 759041
+* **Guilherme Oliveira** - RA: 759041
 * **Jhonattan Vieira dos Santos** - RA: 563234
 * **Roger Sigolo Junior** - RA: 728340
 * **Victoria de Martini de Souza** - RA: 759378	
