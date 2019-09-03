@@ -55,7 +55,7 @@ int operacao_ct(char **args)
         i++;
     }
 
-    fprintf(tabela, "\n");
+    fprintf(tabela, "#\n");
     printf("\n");
 
     fclose(tabela);
@@ -341,7 +341,7 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
     free(dados);
     flag = 0;
 
-    while ((fgets(linha, 150, tabela) != NULL)&&(flag==0))
+    while ((fgets(linha, 150, tabela) != NULL) && (flag == 0))
     { //Enquanto não chegou no fim do arquivo
         char *linha_achada = (char *)malloc(sizeof(char) * 150);
         strcpy(linha_achada, linha);
@@ -466,12 +466,19 @@ int operacao_arquivo(char **args)
 
     while (!feof(arq))
     {
-        resultado = remover_espacos_duplos(fgets(linha, 150, arq)); //'fgets' le ate 150 caracteres ou ate o '\n'
+        // Lê uma linha (inclusive com o '\n')
+        resultado = remover_espacos_duplos(strtok(fgets(linha, 150, arq), "\n")); // o 'fgets' lê até 150 caracteres ou até o '\n'
         if (resultado)
-            return (*comandos_funcoes[15])(argumentos);
+        {
+            if (strcmp(resultado, "EB") == 0)
+            {
+                return (*comandos_funcoes[15])(argumentos);
+                break;
+            }
+            argumentos = separar_string(linha); //Gerador da lista de comandos
+            interpretador(argumentos, flag);    //Interpretador dos comandos
+        }
     }
-    argumentos = separar_string(linha); //Gerador da lista de comandos
-    interpretador(argumentos, flag);    //Interpretador dos comandos
 
     fclose(arq);
     return flag;
