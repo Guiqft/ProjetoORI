@@ -34,18 +34,18 @@ int interpretador(char **comandos, int flag)
 
     for (i = 0; i < comandos_quantidade(); i++)
     {
-        if (strcmp(comandos[i], "BR") == 0)
+        if (strcmp(comandos[0], "BR") == 0)
         {
             if (strcmp(comandos[1], "N") == 0)
             {
                 flag = 1;
-                return (*comandos_funcoes[5])(comandos);
+                return (*comandos_funcoes[6])(comandos);
             }
 
             else if (strcmp(comandos[1], "U") == 0)
             {
                 flag = 1;
-                return (*comandos_funcoes[6])(comandos);
+                return (*comandos_funcoes[7])(comandos);
             }
         }
         if (strcmp(comandos[i], "CI") == 0)
