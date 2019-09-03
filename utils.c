@@ -10,7 +10,7 @@ char *maiuscula(char *string)
 
     return copia;
 }
-
+//Função que verifica se é inteiro
 int verifica_int(char *string)
 {
     for (int i = 0; i < strlen(string); i++)
@@ -20,6 +20,7 @@ int verifica_int(char *string)
     }
     return 0;
 }
+//Função que verifica se é float
 int verifica_flt(char *string)
 {
     int j = 0;
@@ -37,6 +38,7 @@ int verifica_flt(char *string)
     }
     return 0;
 }
+//Função que verifica se é uma string
 int verifica_str(char *string)
 {
     for (int i = 0; i < strlen(string); i++)
@@ -86,8 +88,10 @@ char **separar_string(char *linha)
     char **lista = malloc(150 * sizeof(char *));
     char *token;
     int cont = 0;
-
+    
     token = strtok(linha, " ;:|");
+    //divide uma string em strings menores (tokens), com cada token sendo delimitado por
+    //uma caracter definida
     while (token != NULL)
     {
         lista[posicao] = token;
@@ -100,7 +104,8 @@ char **separar_string(char *linha)
     }
     lista[posicao] = NULL;
 
-    organizar_lista(lista);
+    organizar_lista(lista); //transforma todos os comandos em maiusculo para comparação
+    //no interpretador
 
     return lista;
 }
@@ -113,6 +118,8 @@ char **separar_busca(char *linha)
     int cont = 0;
 
     token = strtok(linha, ";:|");
+    //divide uma string em strings menores (tokens), com cada token sendo delimitado por
+    //uma caracter definida (;,:,|)
     while (token != NULL)
     {
         lista[posicao] = token;

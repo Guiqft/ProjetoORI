@@ -4,29 +4,30 @@ int (*comandos_funcoes[])(char **);
 int operacao_ct(char **args)
 {
     int flag = 0;
-    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
+    char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1])); //aloca memória no arquivo
     strcpy(nome_tabela, args[1]);
 
-    if (checar_arquivo_existente(nome_tabela))
+    if (checar_arquivo_existente(nome_tabela)) //verifica se a tabela já existe
     {
         printf("A tabela %s ja existe.\n\n", args[1]);
-        return (*comandos_funcoes[15])(args);
+        return (*comandos_funcoes[15])(args); //Executa as funções de comando
     }
 
-    FILE *tabela;
+    FILE *tabela; //variavel tabela do tipo arquivo
 
     if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "w")) == NULL)
     {
         printf("Erro na criacao do arquivo da tabela.\nTente novamente\n");
         return flag;
     }
+    //abrir tabela a partir do nome dela para escrita
 
-    free(nome_tabela);
+    free(nome_tabela); //liberar memória alocada no arquivo
 
     printf("Tabela criada!\nNome da tabela: %s.\n\n", args[1]);
 
     int i = 2;
-    while (args[i] != NULL)
+    while (args[i] != NULL) //verificação do tipo de registro válido
     {
         if (strcmp(args[i], "INT") == 0)
         {
@@ -61,14 +62,14 @@ int operacao_ct(char **args)
     return flag;
 }
 
-int operacao_rt(char **args)
+int operacao_rt(char **args) //apaga o arquivo relativo da tabela e remove seus metadados da base
 {
     char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
     strcpy(nome_tabela, args[1]);
 
-    if (checar_arquivo_existente(args[1]))
+    if (checar_arquivo_existente(args[1])) //verifica se existe a tabela, se existe apaga, senão existe mostra uma mensagem
     {
-        remove(adicionar_diretorio(nome_tabela, 1));
+        remove(adicionar_diretorio(nome_tabela, 1)); //remove a tabela do diretorio
         printf("Tabela %s removida.\n\n", args[1]);
     }
     else
@@ -78,23 +79,23 @@ int operacao_rt(char **args)
     return 0;
 }
 
-int operacao_at(char **args)
+int operacao_at(char **args) //apresenta um resumos dos metadados da tabela indicada (arquivos, campos e índices)
 {
     char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
     strcpy(nome_tabela, args[1]);
 
     FILE *tabela;
 
-    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL) //função para abrir tabela
     {
         printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
         return 0;
     }
 
-    char *linha = (char *)malloc(sizeof(char) * 150);
+    char *linha = (char *)malloc(sizeof(char) * 150); //aloca espaço para resumo dos metadados
     fgets(linha, 150, tabela);
 
-    char **dados = separar_string(linha);
+    char **dados = separar_string(linha); //chama funcao para separar a string por espaço, :, ; e |
     int i = 0;
 
     printf("Resumo da tabela '%s':\n", nome_tabela);
@@ -113,25 +114,27 @@ int operacao_at(char **args)
     return 0;
 }
 
-int operacao_lt(char **args)
+int operacao_lt(char **args) //lista o nome de todas as tabelas existentes na base
 {
-    DIR *dir;
+    DIR *dir;  //diretorio
     struct dirent *lsdir;
     char *token;
     int cont = 0;
 
-    dir = opendir("./Data/");
+    dir = opendir("./Data/"); //abrir diretorio
 
     printf("Tabelas existentes na base:\n");
-    while ((lsdir = readdir(dir)) != NULL)
+    while ((lsdir = readdir(dir)) != NULL) //Readdir = Lê os campos do manipulador do diretório
+    //Os nomes de arquivos são retornados na ordem informada pelo sistema de arquivos.
+
     {
         if (cont >= 2)
         {
             token = strtok(lsdir->d_name, ".");
-            printf("-Tabela %d: %s\n", cont + 1, token);
+            printf("-Tabela %d: %s\n", cont + 1, token); //lista as tabelas existentes no diretorio
         }
         cont++;
-    }
+    } 
 
     printf("\n\n");
 
@@ -139,10 +142,11 @@ int operacao_lt(char **args)
     return 0;
 }
 
-int operacao_ir(char **args)
+int operacao_ir(char **args) //insere o registro na tabela, usando a politica de inserção adequada
 {
     char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
     strcpy(nome_tabela, args[1]);
+    //Realiza a cópia do conteúdo de uma variável a outra
     FILE *tabela;
     FILE *aux;
     char *linha = (char *)malloc(sizeof(char) * 150);
@@ -154,6 +158,7 @@ int operacao_ir(char **args)
     }
 
     fgets(linha, 150, aux);
+    //Lê do fluxo para a cadeia de caracteres string até a quantidade de caracteres (tamanho - 1) ser lida
     char **dados = separar_string(linha);
     int i = 0;
     int j = 2;
@@ -216,10 +221,11 @@ int operacao_ir(char **args)
     free(linha);
     return 0;
 }
-int operacao_brN(char **args)
+int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaçam a busca
 {
     char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[2]));
     strcpy(nome_tabela, args[2]);
+    //Realiza a cópia do conteúdo de uma variável a outra
 
     FILE *tabela;
 
@@ -231,19 +237,21 @@ int operacao_brN(char **args)
 
     char *linha = (char *)malloc(sizeof(char) * 150);
     fgets(linha, 150, tabela);
+    //Lê do fluxo para a cadeia de caracteres string até a quantidade de caracteres (tamanho - 1) ser lida
     char **dados = separar_string(linha);
     int i = 1, flag = 0;
 
     char *nome_arquivo = (char *)malloc(sizeof(char) * strlen(nome_tabela));
-    strcpy(nome_arquivo, nome_tabela);
-    strcat(nome_arquivo, "_Busca");
+    strcpy(nome_arquivo, nome_tabela); //Realiza a cópia do conteúdo de uma variável a outra
 
-    while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
+    strcat(nome_arquivo, "_Busca"); //Concatenar strings
+
+    while (dados[i] != NULL && strcmp(dados[i], "\n") != 0) //Comparar strings
     {
-        if (strcmp(args[3], dados[i]) == 0)
+        if (strcmp(args[3], dados[i]) == 0) //Comparar strings
         {
             flag = 1;
-            if (checar_arquivo_existente(nome_arquivo))
+            if (checar_arquivo_existente(nome_arquivo)) //checar se o arquivo da tabela ja existe no diretorio
                 remove(adicionar_diretorio(nome_arquivo, 1));
         }
         i = i + 2;
@@ -294,7 +302,7 @@ int operacao_brN(char **args)
     free(linha);
     return 0;
 }
-int operacao_brU(char **args)
+int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satisfaça a busca
 {
     char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[2]));
     strcpy(nome_tabela, args[2]);
