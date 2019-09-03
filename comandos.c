@@ -379,7 +379,7 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
     free(linha);
     return 0;
 }
-int operacao_ar(char **args)
+int operacao_ar(char **args) //Apresenta na tabela os valores dos registros retornados pela ultima busca
 {
     char *nome_tabela = (char *)malloc(sizeof(char) * strlen(args[1]));
     strcpy(nome_tabela, args[1]);
