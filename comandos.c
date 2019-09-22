@@ -134,7 +134,7 @@ int operacao_lt(char **args) //lista o nome de todas as tabelas existentes na ba
             printf("-Tabela %d: %s\n", cont + 1, token); //lista as tabelas existentes no diretorio
         }
         cont++;
-    } 
+    }
 
     printf("\n\n");
 
@@ -194,6 +194,19 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
             {
                 printf("Nao use '#' ou '|'\n");
                 return 0;
+            }
+            if (checar_arquivo_existente(args[j]) == 0)
+            {
+              printf("Arquivo BIN nao existe, um sera criado (vazio)\nCaso voce queira usar um arquivo especifico, coloque-o na pasta data");
+              FILE *arquivo; //variavel tabela do tipo arquivo
+
+              if ((arquivo = fopen(adicionar_diretorio(args[j], 1), "wb")) == NULL)
+              {
+                  printf("Erro na criacao do arquivo binario");
+                  return 0;
+              }
+              free(tabela);
+              return 0;
             }
         }
         i = i + 2;
