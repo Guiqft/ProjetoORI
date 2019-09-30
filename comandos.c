@@ -1,6 +1,3 @@
-int interpretador(char **comandos, int flag);
-int (*comandos_funcoes[])(char **);
-
 int operacao_ct(char **args)
 {
     int flag = 0;
@@ -10,7 +7,7 @@ int operacao_ct(char **args)
     if (checar_arquivo_existente(nome_tabela)) //verifica se a tabela já existe
     {
         printf("A tabela %s ja existe.\n\n", args[1]);
-        return (*comandos_funcoes[15])(args); //Executa as funções de comando
+        return EXIT_FAILURE; //Executa o comando de encerramento
     }
 
     FILE *tabela; //variavel tabela do tipo arquivo
@@ -24,12 +21,10 @@ int operacao_ct(char **args)
 
     free(nome_tabela); //liberar memória alocada no arquivo
 
-    printf("Tabela criada!\nNome da tabela: %s.\n\n", args[1]);
-
     int i = 2;
     while (args[i] != NULL) //verificação do tipo de registro válido
     {
-        if (strcmp(args[i], "INT") == 0)
+        if (strcmp(args[i], "INT") == 0 || strcmp(args[i] , "int") == 0)
         {
             flag = 1;
             fprintf(tabela, "INT:%s|", args[i + 1]);
@@ -54,6 +49,8 @@ int operacao_ct(char **args)
             printf("Nao foi digitado um tipo de registro valido!\n\n");
         i++;
     }
+
+    printf("Tabela criada!\nNome da tabela: %s.\n\n", args[1]);
 
     fprintf(tabela, "#\n");
     printf("\n");
@@ -121,15 +118,17 @@ int operacao_lt(char **args) //lista o nome de todas as tabelas existentes na ba
     char *token;
     int cont = 0;
 
+    if(numero_tabelas()==0){  //Se o diretório estiver vazio
+        printf("Nao existem tabelas na base de dados.\n");
+        return 0;
+    }
+
     dir = opendir("./Data/"); //abrir diretorio
 
     printf("Tabelas existentes na base:\n");
-    while ((lsdir = readdir(dir)) != NULL) //Readdir = Lê os campos do manipulador do diretório
-    //Os nomes de arquivos são retornados na ordem informada pelo sistema de arquivos.
-
-    {
-        if (cont >= 2)
-        {
+    while ((lsdir = readdir(dir)) != NULL){ //Readdir = Lê os campos do manipulador do diretório
+                                            //Os nomes de arquivos são retornados na ordem informada pelo sistema de arquivos.
+        if (cont >= 2){  //Retira as 2 primeiras impressões "nulas" do diretório
             token = strtok(lsdir->d_name, ".");
             printf("-Tabela %d: %s\n", cont + 1, token); //lista as tabelas existentes no diretorio
         }
@@ -273,7 +272,11 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
     if (!flag)
         printf("Não existe o campo %s nesta tabela, tente novamente!\n\n", args[2]);
 
+    for(i=0;i<strlen(*dados);i++){
+        free(dados[i]);
+    }
     free(dados);
+
     flag = 0;
 
     while (fgets(linha, 150, tabela) != NULL)
@@ -302,6 +305,11 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
             }
             i++;
         }
+        for(i=0;i<strlen(*dados);i++){
+            free(dados[i]);
+    }
+    
+    free(dados);
     }
     if (flag == 0)
     {
@@ -310,7 +318,6 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
 
     fclose(tabela);
     free(nome_arquivo);
-    free(dados);
     free(nome_tabela);
     free(linha);
     return 0;
@@ -457,7 +464,7 @@ int operacao_gi(char **args)
 }
 int operacao_eb(char **args)
 {
-    printf("Encerra a interpretaÃ§Ã£o e termina a execuÃ§Ã£o do programa.\n\n");
+    printf("Encerra a interpretacao e a execucao do programa.\n\n");
     return 0;
 }
 int operacao_arquivo(char **args)
@@ -483,13 +490,12 @@ int operacao_arquivo(char **args)
         resultado = remover_espacos_duplos(strtok(fgets(linha, 150, arq), "\n")); // o 'fgets' lê até 150 caracteres ou até o '\n'
         if (resultado)
         {
-            if (strcmp(resultado, "EB") == 0)
+            if (strcmp(resultado, "eb") == 0 || strcmp(resultado, "EB") == 0)
             {
-                return (*comandos_funcoes[15])(argumentos);
-                break;
+                exit(0);
             }
             argumentos = separar_string(linha); //Gerador da lista de comandos
-            interpretador(argumentos, flag);    //Interpretador dos comandos
+            interpretador(argumentos);    //Interpretador dos comandos
         }
     }
 

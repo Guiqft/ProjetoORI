@@ -104,7 +104,7 @@ char **separar_string(char *linha)
     }
     lista[posicao] = NULL;
 
-    organizar_lista(lista); //transforma todos os comandos em maiusculo para comparação
+    //organizar_lista(lista); //transforma todos os comandos em maiusculo para comparação
     //no interpretador
 
     return lista;
@@ -129,7 +129,7 @@ char **separar_busca(char *linha)
     }
     lista[posicao] = NULL;
 
-    organizar_lista(lista);
+    //organizar_lista(lista);
 
     return lista;
 }
@@ -168,4 +168,19 @@ int checar_arquivo_existente(char *nome_tabela)
 
     closedir(dir);
     return 0;
+}
+
+//Função para contagem do número de tabelas no diretório './Data/'
+int numero_tabelas(){
+    DIR *dir;
+    struct dirent *lsdir;
+    int cont = -2; //Retira as 2 "contagens nulas" do inicio do diretório
+
+    dir = opendir("./Data/");
+
+    while ((lsdir = readdir(dir)) != NULL)
+        cont ++;
+
+    closedir(dir);
+    return cont;
 }

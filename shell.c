@@ -1,6 +1,22 @@
-//Lista com o nome de todos os comandos
-char *comandos_nomes[] = {"ARQUIVO", "CT", "RT", "AT", "LT", "IR", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI", "RI", "EB"};
+int operacao_arquivo(char **args);
+int operacao_ct(char **args);
+int operacao_rt(char **args);
+int operacao_at(char **args);
+int operacao_lt(char **args);
+int operacao_ir(char **args);
+int operacao_brN(char **args);
+int operacao_brU(char **args);
+int operacao_ar(char **args);
+int operacao_rr(char **args);
+int operacao_ciA(char **args);
+int operacao_ciH(char **args);
+int operacao_gi(char **args);
+int operacao_ri(char **args);
+int operacao_eb(char **args);
 
+//Lista com o nome de todos os comandos
+char *comandos_nomes_maiusculos[] = {"ARQUIVO", "CT", "RT", "AT", "LT", "IR", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI", "RI", "EB"};
+char *comandos_nomes[] = {"arquivo", "ct", "rt", "at", "lt", "ir", "brn", "bru", "ar", "rr", "cia", "cih", "gi", "ri", "eb"};
 //Função para contagem do número de comandos
 int comandos_quantidade() { return sizeof(comandos_nomes) / sizeof(char *); }
 
@@ -24,38 +40,40 @@ char *leitura_linha()
     return entrada;
 }
 
-int interpretador(char **comandos, int flag)
+int interpretador(char **comandos)
 {
     int i, j;
-    flag = 0;
+    int flag = 0;
 
     if (comandos[0] == NULL)
-        return flag;
+        return EXIT_FAILURE;
+    else if (strcmp(comandos[0],"eb") == 0 || strcmp(comandos[0],"EB") == 0)
+        exit(0);
 
     for (i = 0; i < comandos_quantidade(); i++)
     {
-        if (strcmp(comandos[0], "BR") == 0)
+        if (strcmp(comandos[0], "BR") == 0 || strcmp(comandos[0], "br") == 0)
         {
-            if (strcmp(comandos[1], "N") == 0)
+            if (strcmp(comandos[1], "N") == 0 || strcmp(comandos[1], "n") == 0)
             {
                 flag = 1;
                 return (*comandos_funcoes[6])(comandos);
             }
 
-            else if (strcmp(comandos[1], "U") == 0)
+            else if (strcmp(comandos[1], "U") == 0 || strcmp(comandos[1], "u") == 0)
             {
                 flag = 1;
                 return (*comandos_funcoes[7])(comandos);
             }
         }
-        if (strcmp(comandos[i], "CI") == 0)
+        if (strcmp(comandos[i], "CI") == 0 || strcmp(comandos[i], "ci") == 0)
         {
-            if (strcmp(comandos[1], "A") == 0)
+            if (strcmp(comandos[1], "A") == 0 || strcmp(comandos[1], "a") == 0)
             {
                 flag = 1;
                 return (*comandos_funcoes[9])(comandos);
             }
-            else if (strcmp(comandos[1], "H") == 0)
+            else if (strcmp(comandos[1], "H") == 0 || strcmp(comandos[1], "h") == 0)
             {
                 flag = 1;
                 return (*comandos_funcoes[10])(comandos);
@@ -64,7 +82,7 @@ int interpretador(char **comandos, int flag)
 
         for (j = 0; j < comandos_quantidade(); j++)
         {
-            if (strcmp(comandos[i], comandos_nomes[j]) == 0)
+            if (strcmp(comandos[i], comandos_nomes[j]) == 0 || strcmp(comandos[i], comandos_nomes_maiusculos[j]) == 0)
             {
                 flag = 1;
                 return (*comandos_funcoes[j])(comandos);
@@ -79,29 +97,24 @@ int interpretador(char **comandos, int flag)
     }
 }
 
-//Função base para leitura infinita dos comandos
-int loop_comandos()
+//Função base para leitura dos comandos de forma contínua
+void loop_comandos()
 {
     char *linha;       //Entrada do usuário
     char **argumentos; //Lista dos comandos a serem executados
-    int flag = 1;
+    int i = 0;         //Marcador de posição
 
-    do
-    {
-        printf("\n> ");
-        linha = remover_espacos_duplos(leitura_linha()); //Recebe a entrada e retira espacos em excesso
-        if (strcmp(linha, "EB") == 0)                    //Usuário fecha o terminal
-        {
-            return (*comandos_funcoes[15])(argumentos);
-            break;
-        }
-
+    printf("> ");
+    while(linha = remover_espacos_duplos(leitura_linha())){         //Recebe a entrada e retira espacos em excesso
+        if (strcmp(linha, "eb") == 0 || strcmp(linha, "EB") == 0)   //Se o usuário digitar "eb", fecha o shell
+            exit(0);
         argumentos = separar_string(linha); //Gerador da lista de comandos
-        interpretador(argumentos, flag);    //Interpretador dos comandos
-    } while (flag);                         //Loop infinito até que seja cancelado pelo usuário
+        interpretador(argumentos);          //Interpretador dos comandos
 
-    free(linha);
-    free(argumentos);
+        for(i = 0; i < strlen(*argumentos); i++)    //Laço para desalocar memória da lista de comandos
+            free(argumentos[i]);
+        free(argumentos);
 
-    return flag;
+        printf("\n> ");
+    };
 }

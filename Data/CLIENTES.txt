@@ -1,3 +1,0 @@
-INT:CODIGO|STR:NOME|BIN:CERTIF|#
-10|JOSE DA SILVA|jose_cert.crt|#
-20|JOSE DE SOUZA|souza.crt|#
