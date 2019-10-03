@@ -130,7 +130,7 @@ int operacao_lt(char **args) //lista o nome de todas as tabelas existentes na ba
                                             //Os nomes de arquivos são retornados na ordem informada pelo sistema de arquivos.
         if (cont >= 2){  //Retira as 2 primeiras impressões "nulas" do diretório
             token = strtok(lsdir->d_name, ".");
-            printf("-Tabela %d: %s\n", cont + 1, token); //lista as tabelas existentes no diretorio
+            printf("-Tabela %d: %s\n", cont -1 , token); //lista as tabelas existentes no diretorio
         }
         cont++;
     }
@@ -204,6 +204,7 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
                   printf("Erro na criacao do arquivo binario");
                   return 0;
               }
+              fclose(arquivo);
               free(tabela);
               return 0;
             }
@@ -270,7 +271,7 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
     }
 
     if (!flag)
-        printf("Não existe o campo %s nesta tabela, tente novamente!\n\n", args[2]);
+        printf("Não existe o campo %s nesta tabela, tente novamente!\n\n", args[3]);
 
     for(i=0;i<strlen(*dados);i++){
         free(dados[i]);
@@ -416,20 +417,22 @@ int operacao_ar(char **args) //Apresenta na tabela os valores dos registros reto
     char *linha = (char *)malloc(sizeof(char) * 150);
     int i = 0;
 
-    printf("Resultado(s) da(s) ultima busca: ");
+    printf("Resultado(s) da(s) ultima busca: \n");
 
     while (fgets(linha, 150, tabela) != NULL)
     {
         char **dados = separar_busca(linha);
         i = 0;
-        printf("\n");
-        while (dados[i] != NULL && strcmp(dados[i], "#") != 0)
+        printf("Registro %d: ", i+1);
+        while (dados[i] != NULL && strcmp(dados[i], "#\n") != 0)
         {
             printf("%s|", dados[i]);
             i++;
         }
         free(dados);
     }
+
+    printf("\n");
 
     fclose(tabela);
     free(nome_tabela);
@@ -438,9 +441,49 @@ int operacao_ar(char **args) //Apresenta na tabela os valores dos registros reto
 }
 int operacao_rr(char **args)
 {
-    printf("Remove, segundo a politica de remocao da tabela, todos os registros da ultima busca realiza.\n\n");
+    FILE *tabela_busca;
+    char *nome_tabela_busca;
+
+    nome_tabela_busca = malloc(sizeof(char) * (strlen(args[1]) + 10));
+    strcpy(nome_tabela_busca, args[1]);
+    strcat(nome_tabela_busca, "_Busca");
+
+    if ((tabela_busca = fopen(adicionar_diretorio(nome_tabela_busca, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
+        return 0;
+    }
+
+    char linha_busca[150];
+    char linha_dados[150];
+    char *token;
+    char *nome_tabela_dados;
+    FILE *tabela_dados;
+
+    nome_tabela_dados = malloc(sizeof(char) * strlen(args[1]));
+    strcpy(nome_tabela_dados, args[1]);
+    
+    if ((tabela_dados = fopen(adicionar_diretorio(nome_tabela_dados, 1), "r+")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
+        return 0;
+    }
+
+    while(fgets(linha_busca, 150, tabela_busca) != NULL)
+        while(fgets(linha_dados, 150, tabela_dados) != NULL){
+            token = strtok(linha_dados, "\n");
+            if(strcmp(linha_busca, token) == 0)
+                printf("teste");
+        }
+            
+
+    fclose(tabela_dados);
+    fclose(tabela_busca);
+    free(nome_tabela_busca);
+    free(nome_tabela_dados);
     return 0;
 }
+
 int operacao_ciA(char **args)
 {
     printf("Cria um indice estruturado como arvore de multiplos caminhos para a tabela,\n ");
