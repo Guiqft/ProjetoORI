@@ -29,17 +29,17 @@ int operacao_ct(char **args)
             flag = 1;
             fprintf(tabela, "INT:%s|", args[i + 1]);
         }
-        else if (strcmp(args[i], "FLT") == 0)
+        else if (strcmp(args[i], "FLT") == 0 || strcmp(args[i] , "flt") == 0)
         {
             flag = 1;
             fprintf(tabela, "FLT:%s|", args[i + 1]);
         }
-        else if (strcmp(args[i], "STR") == 0)
+        else if (strcmp(args[i], "STR") == 0 || strcmp(args[i] , "str") == 0 ) 
         {
             flag = 1;
             fprintf(tabela, "STR:%s|", args[i + 1]);
         }
-        else if (strcmp(args[i], "BIN") == 0)
+        else if (strcmp(args[i], "BIN") == 0 || strcmp(args[i] , "bin") == 0 )
         {
             flag = 1;
             fprintf(tabela, "BIN:%s|", args[i + 1]);
@@ -395,7 +395,6 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
 
     fclose(tabela);
     free(nome_arquivo);
-    //free(dados);
     free(nome_tabela);
     free(linha);
     return 0;
@@ -539,7 +538,7 @@ int operacao_arquivo(char **args)
 
     while (!feof(arq))
     {
-        // Lê uma linha (inclusive com o '\n')
+        // Lê uma linha (inclusive com o '\n', que é removido com strtok)
         resultado = remover_espacos_duplos(strtok(fgets(linha, 150, arq), "\n")); // o 'fgets' lê até 150 caracteres ou até o '\n'
         if (resultado)
         {

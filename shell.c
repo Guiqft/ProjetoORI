@@ -110,9 +110,6 @@ void loop_comandos()
             exit(0);
         argumentos = separar_string(linha); //Gerador da lista de comandos
         interpretador(argumentos);          //Interpretador dos comandos
-
-        //for(i = 0; i < strlen(*argumentos); i++)    //Laço para desalocar memória da lista de comandos
-                //free(argumentos[i]);
         free(argumentos);
 
         printf("\n> ");
