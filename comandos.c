@@ -395,7 +395,7 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
 
     fclose(tabela);
     free(nome_arquivo);
-    free(dados);
+    //free(dados);
     free(nome_tabela);
     free(linha);
     return 0;
@@ -445,10 +445,10 @@ int operacao_rr(char **args)
     char *nome_tabela_busca;
 
     nome_tabela_busca = malloc(sizeof(char) * (strlen(args[1]) + 10));
-    strcpy(nome_tabela_busca, args[1]);
-    strcat(nome_tabela_busca, "_Busca");
+    strcpy(nome_tabela_busca, args[1]); //Copiar strings
+    strcat(nome_tabela_busca, "_Busca");//Concatenar strings
 
-    if ((tabela_busca = fopen(adicionar_diretorio(nome_tabela_busca, 1), "r")) == NULL)
+    if ((tabela_busca = fopen(adicionar_diretorio(nome_tabela_busca, 1), "r")) == NULL) //abrir tabela para leitura
     {
         printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
         return 0;
@@ -461,19 +461,29 @@ int operacao_rr(char **args)
     FILE *tabela_dados;
 
     nome_tabela_dados = malloc(sizeof(char) * strlen(args[1]));
-    strcpy(nome_tabela_dados, args[1]);
+    strcpy(nome_tabela_dados, args[1]); //copiar strings
     
-    if ((tabela_dados = fopen(adicionar_diretorio(nome_tabela_dados, 1), "r+")) == NULL)
+    if ((tabela_dados = fopen(adicionar_diretorio(nome_tabela_dados, 1), "r+")) == NULL) //abrir tabela para leitura e escrita no fim do arquivo
     {
         printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
         return 0;
     }
-
+    int linha_atual;
+    
     while(fgets(linha_busca, 150, tabela_busca) != NULL)
+        linha_atual = 0; //ftell = Retorna o valor atual da posição no arquivo
         while(fgets(linha_dados, 150, tabela_dados) != NULL){
-            token = strtok(linha_dados, "\n");
-            if(strcmp(linha_busca, token) == 0)
-                printf("teste");
+            //token = strtok(linha_dados, "\n"); fgets já pega uma linha inteira
+            //printf("comparando %s == %s\n", linha_busca, linha_dados);
+            if(strcmp(linha_busca, linha_dados) == 0){
+                int retorna = ftell (tabela_dados);  //salva o final da linha
+                fseek(tabela_dados, linha_atual, SEEK_SET);
+                int tam = retorna-linha_atual-1;
+                fprintf(tabela_dados, "@%d@", tam);
+                fseek (tabela_dados, retorna-3, SEEK_SET); //retorna pro final da linha 
+            }
+            linha_atual = ftell (tabela_dados); //ftell = Retorna o valor atual da posição no arquivo
+
         }
             
 
