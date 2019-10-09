@@ -3,7 +3,7 @@
 //Função que transforma uma string em maiuscula e a retorna
 char *maiuscula(char *string)
 {
-    char *copia = (char *) malloc(sizeof(char) * (int) strlen(string));
+    char *copia = (char *) malloc(sizeof(char) * ((int) strlen(string)+1));
     strcpy(copia, string);
 
     for (int i = 0; i < (int) strlen(string); i++)
@@ -87,7 +87,7 @@ char **organizar_lista(char **lista)
 char **separar_string(char *linha)
 {
     int posicao = 0;
-    char **lista = malloc(150 * sizeof(char *));
+    char **lista = (char**) malloc(150 * sizeof(char *));
     char *token;
     int cont = 0;
     
@@ -141,13 +141,13 @@ char **separar_busca(char *linha)
 //Se o seletor for 0, adiciona apenas o .txt no fim
 char *adicionar_diretorio(char *nome_tabela, int seletor)
 {
-    char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela) + 10));
+    char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela) + 11));
     strcpy(nome_arquivo, nome_tabela);
     strcat(nome_arquivo, ".txt");
 
     if (seletor)
     {
-        char *diretorio_arquivos = (char *)malloc(sizeof(char) * ((int) strlen(nome_arquivo + 10)));
+        char *diretorio_arquivos = (char *)malloc(sizeof(char) * ((int) strlen(nome_arquivo)+10));
         strcpy(diretorio_arquivos, "./data/");
         strcat(diretorio_arquivos, nome_arquivo);
         return diretorio_arquivos;
