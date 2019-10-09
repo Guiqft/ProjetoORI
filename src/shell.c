@@ -1,18 +1,6 @@
-int operacao_arquivo(char **args);
-int operacao_ct(char **args);
-int operacao_rt(char **args);
-int operacao_at(char **args);
-int operacao_lt(char **args);
-int operacao_ir(char **args);
-int operacao_brN(char **args);
-int operacao_brU(char **args);
-int operacao_ar(char **args);
-int operacao_rr(char **args);
-int operacao_ciA(char **args);
-int operacao_ciH(char **args);
-int operacao_gi(char **args);
-int operacao_ri(char **args);
-int operacao_eb(char **args);
+#include "shell.h"
+#include "comandos.h"
+#include "utils.h"
 
 //Lista com o nome de todos os comandos
 char *comandos_nomes_maiusculos[] = {"ARQUIVO", "CT", "RT", "AT", "LT", "IR", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI", "RI", "EB"};
@@ -71,12 +59,12 @@ int interpretador(char **comandos)
             if (strcmp(comandos[1], "A") == 0 || strcmp(comandos[1], "a") == 0)
             {
                 flag = 1;
-                return (*comandos_funcoes[9])(comandos);
+                return (*comandos_funcoes[10])(comandos);
             }
             else if (strcmp(comandos[1], "H") == 0 || strcmp(comandos[1], "h") == 0)
             {
                 flag = 1;
-                return (*comandos_funcoes[10])(comandos);
+                return (*comandos_funcoes[11])(comandos);
             }
         }
 

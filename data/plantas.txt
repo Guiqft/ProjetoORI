@@ -1,0 +1,3 @@
+INT:codigo|STR:especie|#
+30|guilherme|#
+30|bruno|#
