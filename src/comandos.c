@@ -439,11 +439,11 @@ int operacao_rr(char **args)
 
     nome_tabela_busca = malloc(sizeof(char) * ((int) strlen(args[1]) + 10));
     strcpy(nome_tabela_busca, args[1]); //Copiar strings
-    strcat(nome_tabela_busca, "_Busca");//Concatenar strings
+    strcat(nome_tabela_busca, "_busca");//Concatenar strings
 
     if ((tabela_busca = fopen(adicionar_diretorio(nome_tabela_busca, 1), "r")) == NULL) //abrir tabela para leitura
     {
-        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
+        printf("Erro ao abrir o arquivo da tabela busca %s.\nTente novamente.\n\n", args[1]);
         return 0;
     }
 
@@ -453,12 +453,19 @@ int operacao_rr(char **args)
     char *nome_tabela_dados;
     FILE *tabela_dados;
 
+    FILE *tabela_reuso;
+    char *nome_tabela_reuso;
+
+    nome_tabela_reuso = malloc(sizeof(char) * (strlen(args[1]) + 10));
+    strcpy(nome_tabela_reuso, args[1]); //Copiar strings
+    strcat(nome_tabela_reuso, "_reuso");//Concatenar strings
+
     nome_tabela_dados = malloc(sizeof(char) * (int) strlen(args[1]));
     strcpy(nome_tabela_dados, args[1]); //copiar strings
     
     if ((tabela_dados = fopen(adicionar_diretorio(nome_tabela_dados, 1), "r+")) == NULL) //abrir tabela para leitura e escrita no fim do arquivo
     {
-        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
+        printf("Erro ao abrir o arquivo da tabela dados %s.\nTente novamente.\n\n", args[1]);
         return 0;
     }
     int linha_atual;
@@ -472,6 +479,12 @@ int operacao_rr(char **args)
                 int retorna = ftell (tabela_dados);  //salva o final da linha
                 fseek(tabela_dados, linha_atual, SEEK_SET);
                 int tam = retorna-linha_atual-1;
+                 if ((tabela_reuso = fopen(adicionar_diretorio(nome_tabela_reuso, 1), "a")) == NULL) //abrir tabela para escrita
+                {
+                    printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
+                     return 0;
+                 }            
+                fprintf(tabela_reuso, "%d|%d\n", linha_atual , tam);
                 fprintf(tabela_dados, "@%d@", tam);
                 fseek (tabela_dados, retorna-3, SEEK_SET); //retorna pro final da linha 
             }
@@ -479,7 +492,7 @@ int operacao_rr(char **args)
 
         }
             
-
+    fclose(tabela_reuso);
     fclose(tabela_dados);
     fclose(tabela_busca);
     free(nome_tabela_busca);
