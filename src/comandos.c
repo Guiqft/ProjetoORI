@@ -159,7 +159,7 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
         return 0;
     }
 
-    fgets(linha, 150, aux);
+    fgets(linha, 150, aux); //pega a linha do cabeçalho da tabela
     //Lê do fluxo para a cadeia de caracteres string até a quantidade de caracteres (tamanho - 1) ser lida
     char **dados = separar_string(linha);
     int i = 0;
@@ -216,19 +216,51 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
     }
 
     fclose(aux);
-    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "a")) == NULL)
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "w+")) == NULL)
     {
         printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
         return 0;
     }
 
     i = 2;
+    
+    char *linha_nova = (char*)malloc(320); //para contar o tamanho final do registro
+    
     while (args[i] != NULL)
     {
-        fprintf(tabela, "%s|", args[i]);
+        sprintf(linha_nova, "%s|", args[i]);
         i++;
     }
-    fprintf(tabela, "%s\n", "#");
+    sprintf(linha_nova, "%s\n", "#");
+
+    fseek(tabela, 0, SEEK_END);
+    int tam = strlen(linha_nova);
+
+    FILE *tabela_reuso;
+
+    char *nome_tabela_reuso = malloc(sizeof(char) * ((int) strlen(args[1]) + 10));
+    strcpy(nome_tabela_reuso, args[1]); //Copiar strings
+    strcat(nome_tabela_reuso, "_busca");//Concatenar strings
+
+    if ((tabela_reuso = fopen(adicionar_diretorio(nome_tabela_reuso, 1), "rw+")) != NULL){    
+        int posicao;
+        int tamanho;
+        int posicao_reuso = 0;
+        while(fscanf(tabela_reuso, "%d|%d", &posicao, &tamanho) ==2 ) {
+            if (tamanho > tam + 3){
+                fseek (tabela, posicao, SEEK_SET);
+                fseek (tabela_reuso, posicao_reuso, SEEK_SET);
+                fprintf(tabela_reuso, "0|-1");
+                break;
+            }
+            posica_reuso = ftell(tabela_reuso);
+        }
+        fprintf(tabela, linha_nova);
+        fprintf(tabela, "@%d@", tamanho-tam);
+        fclose(tabela_reuso);
+    } else {
+        fprintf(tabela, linha_nova);
+    }
 
     fclose(tabela);
     free(nome_tabela);
@@ -257,10 +289,12 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
     char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela)+7));
     strcpy(nome_arquivo, nome_tabela);
     strcat(nome_arquivo, "_busca"); //Concatenar strings
-
+    int inativo_tam;
     while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
     {
-        if (strcmp(args[3], dados[i]) == 0)
+        if (fscanf(tabela, "@%d@", &inativo_tam) == 1)
+            fseek(tabela, inativo_tam-2, SEEK_CUR);
+        else if (strcmp(args[3], dados[i]) == 0)
         {
             flag = 1;
             if (checar_arquivo_existente(nome_arquivo))
@@ -274,6 +308,7 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
 
     free(dados);
     flag = 0;
+    int inativo_tam;
 
     while (fgets(linha, 150, tabela) != NULL)
     { //Enquanto não chegou no fim do arquivo
@@ -283,7 +318,9 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
         i = 0;
         while (dados[i] != NULL && strcmp(dados[i], "#") != 0)
         { //Enquanto não chegou no fim da linha
-            if (strcmp(args[4], dados[i]) == 0)
+            if (fscanf(tabela, "@%d@", &inativo_tam) == 1)
+                fseek(tabela, inativo_tam-2, SEEK_CUR);
+            else if (strcmp(args[4], dados[i]) == 0)
             {
                 flag = 1;
                 FILE *tabela2;
