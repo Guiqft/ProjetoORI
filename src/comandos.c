@@ -1,6 +1,7 @@
 #include "comandos.h"
 #include "utils.h"
 #include "shell.h"
+#include "external/cranbtree.h"
 
 int operacao_ct(char **args)
 {
@@ -253,13 +254,13 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
                 fprintf(tabela_reuso, "0|-1");
                 break;
             }
-            posica_reuso = ftell(tabela_reuso);
+            posicao_reuso = ftell(tabela_reuso);
         }
-        fprintf(tabela, linha_nova);
+        fprintf(tabela, "%s", linha_nova);
         fprintf(tabela, "@%d@", tamanho-tam);
         fclose(tabela_reuso);
     } else {
-        fprintf(tabela, linha_nova);
+        fprintf(tabela, "%s", linha_nova);
     }
 
     fclose(tabela);
@@ -308,7 +309,6 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
 
     free(dados);
     flag = 0;
-    int inativo_tam;
 
     while (fgets(linha, 150, tabela) != NULL)
     { //Enquanto não chegou no fim do arquivo
@@ -539,10 +539,11 @@ int operacao_rr(char **args)
 
 int operacao_ciA(char **args)
 {
-    if(!strlen(args[2])){
+    if(!strlen(args[2])){ //se o usuário digitou apenas "ci a"
         printf("Digite o nome da tabela que deseja indexar.\n");
         return EXIT_FAILURE;
     }
+
     FILE *tabela;
 
     if ((tabela = fopen(adicionar_diretorio(args[2], 1), "r+")) == NULL) //abrir tabela para leitura e escrita
@@ -557,25 +558,48 @@ int operacao_ciA(char **args)
     char **linha_separada;
     linha_separada = separar_string(linha);
 
-    int cont = 0;
+    int cont = 0, cont_2 = 0;
 
-    while(strcmp(linha_separada[cont],"\n") != 0){
-        printf("%d-teste\n", cont);
-        if(strstr(linha_separada[cont],"INT(") == NULL){ //se a tabela ja esta indexada, sai sem fazer nada
-            if(strcmp(linha_separada[cont],"INT") == 0){
-                strcat(linha_separada[cont],"(");
-                strcat(linha_separada[cont],args[1]);   //args[1] == "a" ou "h" (tipo da indexaçao)
-                strcat(linha_separada[cont],")");
+    while(strcmp(linha_separada[cont],"#\n") != 0){
+        if(!strcmp(linha_separada[cont],"INT")){ //Se a tabela tiver um campo do tipo INT
+            FILE *index_file;
+            char *diretorio;
+            diretorio = malloc(sizeof(char) * (strlen(args[2]) + 24));
+            strcpy(diretorio,"index_files/");
+            strcat(diretorio,args[2]);
+            strcat(diretorio,"_index_tree"); //Nesse momento, diretorio[] = "index_files/nometabela_index_tree"
+
+            if ((index_file = fopen(adicionar_diretorio(diretorio, 1), "w+")) == NULL){ //criar o arquivo de indexacao
+                printf("Erro ao criar o arquivo da tabela %s.\nTente novamente.\n\n", args[2]);
+                return 0;
             }
+
+            fprintf(index_file,"INT:%s\n",linha_separada[cont+1]); //escreve "INT:nomedocampo" no arquivo de indice
+
+            while(fgets(linha,200,tabela)!=NULL){ //loop para leitura dos registros
+                char *linha_copia = malloc(sizeof(char) * (strlen(linha) + 1));
+                strcpy(linha_copia,linha);
+                char **registro_separado = separar_string(linha_copia); //separação dos registros
+
+                cont_2 = 0;
+
+                while(strcmp(registro_separado[cont_2],"#\n")!=0){ //percorre os campos do registro atual
+                    if(!verifica_int(registro_separado[cont_2])){  //se o campo for um inteiro
+                        int chave = registro_separado[cont_2];
+                        long int conteudo = ftell(tabela);
+
+                        fprintf(index_file, "%s|%ld|#\n", chave, conteudo); //grava o inteiro na tabela de indice juntamente com sua localização na tabela
+                    } 
+                       
+                    cont_2++;
+                }
+            }
+
+            fclose(index_file);
         }
-        printf("%s",linha_separada[cont]);
-        printf("teste2\n");
-
-        cont++;
+        cont+=2;
     }
-
-    //printf("%s", juntar_string(linha_separada));
-
+    fclose(tabela);
     return 0;
 }
 int operacao_ciH(char **args)
