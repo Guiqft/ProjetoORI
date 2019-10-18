@@ -209,3 +209,18 @@ char* juntar_string(char **string_dividida){
     
     return string;
 }
+
+int verificaIndex(char *nome_tabela){
+    FILE *index_file;
+    char *diretorio;
+    diretorio = malloc(sizeof(char) * (strlen(args[2]) + 24));
+    strcpy(diretorio,"index_files/");
+    strcat(diretorio,nome_tabela);
+    strcat(diretorio,"_index_tree"); //Nesse momento, diretorio[] = "index_files/nometabela_index_tree"
+
+    if ((index_file = fopen(adicionar_diretorio(diretorio, 1), "r")) == NULL){ //checar o arquivo de indexacao
+        return 0;
+    }
+    else
+        return 1;
+}
