@@ -1,6 +1,8 @@
 {
     "files.associations": {
         "comandos.h": "c",
-        "utils.h": "c"
+        "utils.h": "c",
+        "shell.h": "c",
+        "cranbtree.h": "c"
     }
 }

@@ -1,7 +1,8 @@
 #include "comandos.h"
 #include "utils.h"
 #include "shell.h"
-#include "external/cranbtree.h"
+#include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
+
 
 int operacao_ct(char **args)
 {
@@ -77,6 +78,15 @@ int operacao_rt(char **args) //apaga o arquivo relativo da tabela e remove seus 
     else
         printf("A tabela %s nao existe.\n\n", args[1]);
 
+    char *diretorio;
+    diretorio = malloc(sizeof(char) * (strlen(args[1]) + 24));
+    strcpy(diretorio,"index_files/");
+    strcat(diretorio,args[1]);
+    strcat(diretorio,"_index"); //Nesse momento, diretorio[] = "index_files/nometabela_index"
+    
+    if(checar_arquivo_existente(diretorio))
+        remove(adicionar_diretorio(diretorio, 1));
+
     free(nome_tabela);
     return 0;
 }
@@ -100,17 +110,36 @@ int operacao_at(char **args) //apresenta um resumos dos metadados da tabela indi
     char **dados = separar_string(linha); //chama funcao para separar a string por espaço, :, ; e |
     int i = 0;
 
+    char *diretorio;
+    diretorio = malloc(sizeof(char) * (strlen(args[1]) + 24));
+    strcpy(diretorio,"index_files/");
+    strcat(diretorio,args[1]);
+    strcat(diretorio,"_index"); //Nesse momento, diretorio[] = "index_files/nometabela_index"
+    
     printf("Resumo da tabela '%s':\n", nome_tabela);
-    printf("Registros:\n");
+    printf("Campos:\n");
+
+    FILE * index_file;
+    char linha_2[150];
+    if((index_file = fopen(adicionar_diretorio(diretorio, 1), "r+")) != NULL){
+        fgets(linha_2, 150, index_file);
+    }
 
     while (dados[i] != NULL && strcmp(dados[i], "#\n") != 0)
     {
-        if (i % 2 == 0)
+        if(strstr(linha_2,dados[i+1])!=NULL){
+            if(strstr(linha_2,"tree")!=NULL)                
+                printf("-Tipo %s, nome: '%s', indexacao: %s.\n", dados[i], dados[i+1], "arvore");
+            if(strstr(linha_2,"hash")!=NULL)                
+                printf("-Tipo %s, nome: '%s', indexacao: %s.\n", dados[i], dados[i+1], "hash");
+        }
+        else
             printf("-Tipo %s, nome: '%s'.\n", dados[i], dados[i + 1]);
-        i++;
+        i+=2;
     }
 
     fclose(tabela);
+    fclose(index_file);
     free(nome_tabela);
     free(linha);
     return 0;
@@ -543,6 +572,10 @@ int operacao_ciA(char **args)
         printf("Digite o nome da tabela que deseja indexar.\n");
         return EXIT_FAILURE;
     }
+    if(!strlen(args[3])){ //se o usuário digitou apenas "ci a nome_tabela"
+        printf("Digite o nome do campo que deseja indexar.\n");
+        return EXIT_FAILURE;
+    }
 
     FILE *tabela;
 
@@ -558,47 +591,68 @@ int operacao_ciA(char **args)
     char **linha_separada;
     linha_separada = separar_string(linha);
 
-    int cont = 0, cont_2 = 0;
+    int cont = 0, cont_2 = 0, flag = 0;
 
     while(strcmp(linha_separada[cont],"#\n") != 0){
-        if(!strcmp(linha_separada[cont],"INT")){ //Se a tabela tiver um campo do tipo INT
-            FILE *index_file;
-            char *diretorio;
-            diretorio = malloc(sizeof(char) * (strlen(args[2]) + 24));
-            strcpy(diretorio,"index_files/");
-            strcat(diretorio,args[2]);
-            strcat(diretorio,"_index_tree"); //Nesse momento, diretorio[] = "index_files/nometabela_index_tree"
+        if(!strcmp(linha_separada[cont],args[3])){ //Se o nome do campo for igual ao procurado
+            if(!strcmp(linha_separada[cont-1],"INT")){
+                flag = 1 ;
+                FILE *index_file;
+                char *diretorio;
+                diretorio = malloc(sizeof(char) * (strlen(args[2]) + 24));
+                strcpy(diretorio,"index_files/");
+                strcat(diretorio,args[2]);
+                strcat(diretorio,"_index"); //Nesse momento, diretorio[] = "index_files/nometabela_index"
 
-            if ((index_file = fopen(adicionar_diretorio(diretorio, 1), "w+")) == NULL){ //criar o arquivo de indexacao
-                printf("Erro ao criar o arquivo da tabela %s.\nTente novamente.\n\n", args[2]);
-                return 0;
-            }
-
-            fprintf(index_file,"INT:%s\n",linha_separada[cont+1]); //escreve "INT:nomedocampo" no arquivo de indice
-
-            while(fgets(linha,200,tabela)!=NULL){ //loop para leitura dos registros
-                char *linha_copia = malloc(sizeof(char) * (strlen(linha) + 1));
-                strcpy(linha_copia,linha);
-                char **registro_separado = separar_string(linha_copia); //separação dos registros
-
-                cont_2 = 0;
-
-                while(strcmp(registro_separado[cont_2],"#\n")!=0){ //percorre os campos do registro atual
-                    if(!verifica_int(registro_separado[cont_2])){  //se o campo for um inteiro
-                        int chave = registro_separado[cont_2];
-                        long int conteudo = ftell(tabela);
-
-                        fprintf(index_file, "%s|%ld|#\n", chave, conteudo); //grava o inteiro na tabela de indice juntamente com sua localização na tabela
-                    } 
-                       
-                    cont_2++;
+                if(checar_arquivo_existente(diretorio)){ //Se a tabela ja está indexada
+                    index_file = fopen(adicionar_diretorio(diretorio, 1), "r");
+                    char linha[150];
+                    fgets(linha, 150, index_file);
+                    if(strstr(linha, "tree") != NULL) //Se a indexação for do tipo arvore
+                        return 0;                     //Sai do programa
                 }
-            }
 
-            fclose(index_file);
+                if ((index_file = fopen(adicionar_diretorio(diretorio, 1), "w+")) == NULL){ //criar o arquivo de indexacao
+                    printf("Erro ao criar o arquivo da tabela %s.\nTente novamente.\n\n", args[2]);
+                    return 0;
+                }
+
+                fprintf(index_file,"INT:%s:(tree)\n",linha_separada[cont]); //escreve "INT:nomedocampo" no arquivo de indice
+
+                while(fgets(linha,200,tabela)!=NULL){ //loop para leitura dos registros
+                    char *linha_copia = malloc(sizeof(char) * (strlen(linha) + 1));
+                    strcpy(linha_copia,linha);
+                    char **registro_separado = separar_string(linha_copia); //separação dos registros
+
+                    cont_2 = 0;
+
+                    while(strcmp(registro_separado[cont_2],"#\n")!=0){ //percorre os campos do registro atual
+                        if(!verifica_int(registro_separado[cont_2])){  //se o campo for um inteiro
+                            int chave = atoi(registro_separado[cont_2]);
+                            long int conteudo = ftell(tabela);
+                            int tamanho = (int) strlen(linha);
+
+                            fprintf(index_file, "%d|%ld|#\n", chave, conteudo-tamanho); //grava o inteiro na tabela de indice juntamente com sua localização na tabela
+                        } 
+                        
+                        cont_2++;
+                    }
+                    free(linha_copia);
+                }
+
+                fclose(index_file);
+                free(diretorio);
+            }else{
+                printf("O campo digitado nao eh do tipo INT!\n");
+                return EXIT_FAILURE;
+            }
         }
-        cont+=2;
+        cont++;
     }
+    if(!flag)
+        printf("O campo %s nao eh valido.\n", args[3]);
+        
+    free(linha_separada);
     fclose(tabela);
     return 0;
 }
@@ -609,7 +663,18 @@ int operacao_ciH(char **args)
 }
 int operacao_ri(char **args)
 {
-    printf("Remove o indice relativo a chave, atualizando os metadados e apagando as estruturas envolvidas.\n\n");
+    char *diretorio;
+    diretorio = malloc(sizeof(char) * (strlen(args[1]) + 24));
+    strcpy(diretorio,"index_files/");
+    strcat(diretorio,args[2]);
+    strcat(diretorio,"_index"); //Nesse momento, diretorio[] = "index_files/nometabela_index"
+    
+    if(checar_arquivo_existente(diretorio)){
+        remove(adicionar_diretorio(diretorio, 1));
+    }else{
+        printf("Nao existem arquivos de indice para a tabela %s.\n", args[1]);
+    }
+
     return 0;
 }
 int operacao_gi(char **args)
@@ -619,9 +684,10 @@ int operacao_gi(char **args)
 }
 int operacao_eb(char **args)
 {
-    printf("Encerra a interpretacao e a execucao do programa.\n\n");
+    printf("Gera novamente o indice de tabela referente a chave, partindo do zero.\n\n");
     return 0;
 }
+
 int operacao_arquivo(char **args)
 {
     FILE *arq;

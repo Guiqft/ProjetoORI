@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <dirent.h>
+#include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
 #include "comandos.h"
 #include "utils.h"
 #include "shell.h"

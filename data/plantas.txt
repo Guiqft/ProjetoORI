@@ -1,7 +1,6 @@
 INT:codigo|STR:especie|#
 30|guilherme|#
-30|bruno|#
-30|planta|#
-30|guilherme|#
-30|guilherme|#
+35|bruno|#
+33|guilherme|#
+14|guilherme|#
 30|bruno|#
