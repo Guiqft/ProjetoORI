@@ -6,7 +6,7 @@
 #include <string.h>
 #include <stddef.h>
 #include <dirent.h>
-
+#include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
 
 char *maiuscula(char *string);
 char *remover_espacos_duplos(char str[]);
@@ -20,5 +20,7 @@ char *adicionar_diretorio(char *nome_tabela, int seletor);
 int checar_arquivo_existente(char *nome_tabela);
 int numero_tabelas();
 char* juntar_string(char **string_dividida);
+int verificaIndex(char *nome_tabela);
+cranbtree_t* mount_tree(FILE* tree_file);
 
 #endif /* UTILS */

@@ -1,5 +1,7 @@
 #include "utils.h"
 
+
+
 //Função que transforma uma string em maiuscula e a retorna
 char *maiuscula(char *string)
 {
@@ -210,17 +212,44 @@ char* juntar_string(char **string_dividida){
     return string;
 }
 
+//função que verifica se uma tabela está indexada ou não
+//a função retorna:
+//- 0 se não estiver indexada
+//- 1 se estiver indexada por arvore
+//- 2 se estiver indexada por hash
 int verificaIndex(char *nome_tabela){
     FILE *index_file;
     char *diretorio;
-    diretorio = malloc(sizeof(char) * (strlen(args[2]) + 24));
+    diretorio = malloc(sizeof(char) * (strlen(nome_tabela) + 24));
     strcpy(diretorio,"index_files/");
     strcat(diretorio,nome_tabela);
     strcat(diretorio,"_index_tree"); //Nesse momento, diretorio[] = "index_files/nometabela_index_tree"
 
-    if ((index_file = fopen(adicionar_diretorio(diretorio, 1), "r")) == NULL){ //checar o arquivo de indexacao
+    if ((index_file = fopen(adicionar_diretorio(diretorio, 1), "r")) != NULL){ //checar o arquivo de indexacao
+        char linha[150];
+        fgets(linha,150,index_file);
+        if(strstr(linha, "tree") != NULL)
+            return 1;
+        else if(strstr(linha,"hash") != NULL)
+            return 2;
+    }
+    else{
         return 0;
     }
-    else
-        return 1;
+}
+
+//Função que recebe o arquivo estrutural da árvore e retorna um ponteiro para a árvore instanciada
+cranbtree_t* mount_tree(FILE* tree_file){
+    char linha[150];
+    cranbtree_t *tree_index = cbt_create(3); //Cria a arvore permitindo até 3 chaves por nó (é o minimo permitido pela biblioteca)
+    fgets(linha, 150, tree_file); //pega a primeira linha para descarte
+
+    while (fgets(linha, 150, tree_file) != NULL){
+        char *chave = strtok(linha,"|");
+        char *conteudo = strtok(NULL, "|");
+        cbt_insert(tree_index, atoi(chave), conteudo);  //Insere na arvore o registro na arvore com o inteiro como chave
+                                                        //e a localização do registro como conteúdo 
+    }
+
+    return tree_index;
 }

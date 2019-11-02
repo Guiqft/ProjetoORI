@@ -1,7 +1,4 @@
 #include "comandos.h"
-#include "utils.h"
-#include "shell.h"
-#include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
 
 
 int operacao_ct(char **args)
@@ -305,30 +302,61 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
 }
 int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaçam a busca
 {
+    int flag = 0;
     char *nome_tabela = (char *)malloc(sizeof(char) * ((int) strlen(args[2])+1));
     strcpy(nome_tabela, args[2]);
 
-    FILE *tabela;
+    char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela)+7));
+    strcpy(nome_arquivo, nome_tabela);
+    strcat(nome_arquivo, "_busca"); //Concatenar strings
 
-    if(verificaIndex(nome_tabela)){
-        printf("A funcao BR U contempla indexacao.");
+
+    FILE *tabela;
+    FILE *tabela2;
+
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[2]);
+        return 0;
     }
-    else{
-        if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
-        {
-            printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[2]);
-            return 0;
+
+    if ((tabela2 = fopen(adicionar_diretorio(nome_arquivo, 1), "a")) == NULL)
+    {
+        printf("Erro na criacao do arquivo da tabela.\nTente novamente\n\n");
+        return 0;
+    }
+
+    if(verificaIndex(nome_tabela)==1){ //se a tabela conter campo indexado
+        cranbtree_t *index_tree = cbt_create(3);
+        int *pointer = cbt_search(index_tree, atoi(args[3]));
+
+        if(pointer != NULL){
+            flag = 1;
+
+            int found = *pointer;
+            fseek(tabela, found, SEEK_SET); //seta o ponteiro para a posição do registro encontrado
+            char linha[150];
+            fgets(linha, 150, tabela);
+            char *token = strtok(linha, "#\n");
+            
+            fprintf(tabela2, "%s#\n", token);
         }
 
+        cbt_destroy(index_tree, NULL);
+    }
+
+    else if(verificaIndex(nome_tabela)==2){
+
+    }
+
+    else{
         char *linha = (char *)malloc(sizeof(char) * 150);
         fgets(linha, 150, tabela);
         char **dados = separar_string(linha);
         int i = 1, flag = 0;
 
-        char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela)+7));
-        strcpy(nome_arquivo, nome_tabela);
-        strcat(nome_arquivo, "_busca"); //Concatenar strings
         int inativo_tam;
+
         while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
         {
             if (fscanf(tabela, "@%d@", &inativo_tam) == 1)
@@ -377,44 +405,75 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
                 i++;
             }
         }
-        if (flag == 0)
-        {
-            printf("Nao foi encontrado nenhum dado referente a pesquisa.\n\n");
-        }
-
-        fclose(tabela);
-        free(nome_arquivo);
-        free(linha);
     }
+
+    if (flag == 0)
+    {
+        printf("Nao foi encontrado nenhum dado referente a pesquisa.\n\n");
+    }
+
+    fclose(tabela);
+    fclose(tabela2);
+    free(nome_arquivo);
     free(nome_tabela);
     return 0;
 }
 int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satisfaça a busca
 {
+    int flag = 0;
     char *nome_tabela = (char *)malloc(sizeof(char) * ((int) strlen(args[2])+1));
     strcpy(nome_tabela, args[2]);
 
-    if(verificaIndex(nome_tabela)){
-        printf("A funcao BR U contempla indexacao.");
+    char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela)+7));
+    strcpy(nome_arquivo, nome_tabela);
+    strcat(nome_arquivo, "_busca"); //Concatenar strings
+
+
+    FILE *tabela;
+    FILE *tabela2;
+
+    if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
+    {
+        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[2]);
+        return 0;
+    }
+
+    if ((tabela2 = fopen(adicionar_diretorio(nome_arquivo, 1), "a")) == NULL)
+    {
+        printf("Erro na criacao do arquivo da tabela.\nTente novamente\n\n");
+        return 0;
+    }
+
+    if(verificaIndex(nome_tabela)==1){ //se a tabela conter campo indexado
+        cranbtree_t *index_tree = cbt_create(3);
+        int *pointer = cbt_search(index_tree, atoi(args[3]));
+
+        if(pointer != NULL){
+            flag = 1;
+            
+            int found = *pointer;
+            fseek(tabela, found, SEEK_SET); //seta o ponteiro para a posição do registro encontrado
+            char linha[150];
+            fgets(linha, 150, tabela);
+            char *token = strtok(linha, "#\n");
+            
+            fprintf(tabela2, "%s#\n", token);
+        }
+
+        cbt_destroy(index_tree, NULL);
+    }
+
+    else if(verificaIndex(nome_tabela)==2){
+
     }
 
     else{
-        FILE *tabela;
-
-        if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
-        {
-            printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[2]);
-            return 0;
-        }
-
         char *linha = (char *)malloc(sizeof(char) * 150);
         fgets(linha, 150, tabela);
         char **dados = separar_string(linha);
-        int i = 1, flag = 0;
+        int i = 1;
 
-        char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela)+7));
-        strcpy(nome_arquivo, nome_tabela);
-        strcat(nome_arquivo, "_busca"); //Concatenar strings
+        int inativo_tam;
 
         while (dados[i] != NULL && strcmp(dados[i], "\n") != 0)
         {
@@ -460,15 +519,16 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
                 i++;
             }
         }
-        if (flag == 0)
-        {
-            printf("Nao foi encontrado nenhum dado referente a pesquisa.\n\n");
-        }
-
-        fclose(tabela);
-        free(nome_arquivo);
-        free(linha);
     }
+    
+    if (flag == 0)
+    {
+        printf("Nao foi encontrado nenhum dado referente a pesquisa.\n\n");
+    }
+
+    fclose(tabela);
+    fclose(tabela2);
+    free(nome_arquivo);
     free(nome_tabela);
     return 0;
 }
@@ -518,77 +578,83 @@ int operacao_rr(char **args)
 {
     char *nome_tabela = (char *)malloc(sizeof(char) * ((int) strlen(args[1])+1));
     strcpy(nome_tabela, args[1]); //Realiza a cópia do conteúdo de uma variável a outra
+    FILE *tabela_busca;
+    char *nome_tabela_busca;
 
-    if(verificaIndex(nome_tabela)){
-        printf("A funcao RR contempla indexacao.");
+    nome_tabela_busca = malloc(sizeof(char) * ((int) strlen(args[1]) + 10));
+    strcpy(nome_tabela_busca, args[1]); //Copiar strings
+    strcat(nome_tabela_busca, "_busca");//Concatenar strings
+
+    if ((tabela_busca = fopen(adicionar_diretorio(nome_tabela_busca, 1), "r")) == NULL) //abrir tabela para leitura
+    {
+        printf("Erro ao abrir o arquivo da tabela busca %s.\nTente novamente.\n\n", args[1]);
+        return 0;
     }
 
-    else{
-        FILE *tabela_busca;
-        char *nome_tabela_busca;
+    char linha_busca[150];
+    char linha_dados[150];
+    char *token;
+    char *nome_tabela_dados;
+    FILE *tabela_dados;
 
-        nome_tabela_busca = malloc(sizeof(char) * ((int) strlen(args[1]) + 10));
-        strcpy(nome_tabela_busca, args[1]); //Copiar strings
-        strcat(nome_tabela_busca, "_busca");//Concatenar strings
+    FILE *tabela_reuso;
+    char *nome_tabela_reuso;
 
-        if ((tabela_busca = fopen(adicionar_diretorio(nome_tabela_busca, 1), "r")) == NULL) //abrir tabela para leitura
-        {
-            printf("Erro ao abrir o arquivo da tabela busca %s.\nTente novamente.\n\n", args[1]);
-            return 0;
-        }
+    nome_tabela_reuso = malloc(sizeof(char) * (strlen(args[1]) + 10));
+    strcpy(nome_tabela_reuso, args[1]); //Copiar strings
+    strcat(nome_tabela_reuso, "_reuso");//Concatenar strings
 
-        char linha_busca[150];
-        char linha_dados[150];
-        char *token;
-        char *nome_tabela_dados;
-        FILE *tabela_dados;
+    nome_tabela_dados = malloc(sizeof(char) * (int) strlen(args[1]));
+    strcpy(nome_tabela_dados, args[1]); //copiar strings
+    
+    if ((tabela_dados = fopen(adicionar_diretorio(nome_tabela_dados, 1), "r+")) == NULL) //abrir tabela para leitura e escrita no fim do arquivo
+    {
+        printf("Erro ao abrir o arquivo da tabela dados %s.\nTente novamente.\n\n", args[1]);
+        return 0;
+    }
 
-        FILE *tabela_reuso;
-        char *nome_tabela_reuso;
-
-        nome_tabela_reuso = malloc(sizeof(char) * (strlen(args[1]) + 10));
-        strcpy(nome_tabela_reuso, args[1]); //Copiar strings
-        strcat(nome_tabela_reuso, "_reuso");//Concatenar strings
-
-        nome_tabela_dados = malloc(sizeof(char) * (int) strlen(args[1]));
-        strcpy(nome_tabela_dados, args[1]); //copiar strings
-        
-        if ((tabela_dados = fopen(adicionar_diretorio(nome_tabela_dados, 1), "r+")) == NULL) //abrir tabela para leitura e escrita no fim do arquivo
-        {
-            printf("Erro ao abrir o arquivo da tabela dados %s.\nTente novamente.\n\n", args[1]);
-            return 0;
-        }
-        int linha_atual;
-        
-        while(fgets(linha_busca, 150, tabela_busca) != NULL)
-            linha_atual = 0; //ftell = Retorna o valor atual da posição no arquivo
-            while(fgets(linha_dados, 150, tabela_dados) != NULL){
-                //token = strtok(linha_dados, "\n"); fgets já pega uma linha inteira
-                //printf("comparando %s == %s\n", linha_busca, linha_dados);
-                if(strcmp(linha_busca, linha_dados) == 0){
-                    int retorna = ftell (tabela_dados);  //salva o final da linha
-                    fseek(tabela_dados, linha_atual, SEEK_SET);
-                    int tam = retorna-linha_atual-1;
-                    if ((tabela_reuso = fopen(adicionar_diretorio(nome_tabela_reuso, 1), "a")) == NULL) //abrir tabela para escrita
-                    {
-                        printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
-                        return 0;
-                    }            
-                    fprintf(tabela_reuso, "%d|%d\n", linha_atual , tam);
-                    fprintf(tabela_dados, "@%d@", tam);
-                    fseek (tabela_dados, retorna-3, SEEK_SET); //retorna pro final da linha 
-                }
-                linha_atual = ftell (tabela_dados); //ftell = Retorna o valor atual da posição no arquivo
-
+    int linha_atual = 0;
+    
+    while(fgets(linha_busca, 150, tabela_busca) != NULL){
+        linha_atual = 0; //ftell = Retorna o valor atual da posição no arquivo
+        while(fgets(linha_dados, 150, tabela_dados) != NULL){
+            //token = strtok(linha_dados, "\n"); fgets já pega uma linha inteira
+            //printf("comparando %s == %s\n", linha_busca, linha_dados);
+            if(strcmp(linha_busca, linha_dados) == 0){
+                int retorna = ftell (tabela_dados);  //salva o final da linha
+                fseek(tabela_dados, linha_atual, SEEK_SET);
+                int tam = retorna-linha_atual-1;
+                if ((tabela_reuso = fopen(adicionar_diretorio(nome_tabela_reuso, 1), "a")) == NULL) //abrir tabela para escrita
+                {
+                    printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", args[1]);
+                    return 0;
+                }            
+                fprintf(tabela_reuso, "%d|%d\n", linha_atual , tam);
+                fprintf(tabela_dados, "@%d@", tam);
+                fseek (tabela_dados, retorna-3, SEEK_SET); //retorna pro final da linha 
             }
-                
-        fclose(tabela_reuso);
-        fclose(tabela_dados);
-        fclose(tabela_busca);
-        free(nome_tabela_busca);
-        free(nome_tabela_dados);
+            linha_atual = ftell (tabela_dados); //ftell = Retorna o valor atual da posição no arquivo
+        }
     }
+
+    char **auxiliar = (char**)malloc(sizeof(char*)*4);
+    auxiliar[0] = "GI";
+    auxiliar[1] = nome_tabela;
+
+    if(verificaIndex(nome_tabela)==1)
+        auxiliar[2] = "arvore";
+    else if (verificaIndex(nome_tabela)==2)
+        auxiliar[2] = "hash";
+    
+    operacao_gi(auxiliar);
+    
+    fclose(tabela_reuso);
+    fclose(tabela_dados);
+    fclose(tabela_busca);
+    free(nome_tabela_busca);
+    free(nome_tabela_dados);
     free(nome_tabela);
+    free(auxiliar);
     return 0;
 }
 
@@ -630,13 +696,13 @@ int operacao_ciA(char **args)
                 strcat(diretorio,args[2]);
                 strcat(diretorio,"_index"); //Nesse momento, diretorio[] = "index_files/nometabela_index"
 
-                if(checar_arquivo_existente(diretorio)){ //Se a tabela ja está indexada
-                    index_file = fopen(adicionar_diretorio(diretorio, 1), "r");
-                    char linha[150];
-                    fgets(linha, 150, index_file);
-                    if(strstr(linha, "tree") != NULL) //Se a indexação for do tipo arvore
-                        return 0;                     //Sai do programa
-                }
+                // if(checar_arquivo_existente(diretorio)){ //Se a tabela ja está indexada
+                //     index_file = fopen(adicionar_diretorio(diretorio, 1), "r");
+                //     char linha[150];
+                //     fgets(linha, 150, index_file);
+                //     if(strstr(linha, "tree") != NULL || strstr(linha, "hash") != NULL) //Se a indexação for do tipo arvore
+                //         return 0;                     //Sai do programa
+                // }
 
                 if ((index_file = fopen(adicionar_diretorio(diretorio, 1), "w+")) == NULL){ //criar o arquivo de indexacao
                     printf("Erro ao criar o arquivo da tabela %s.\nTente novamente.\n\n", args[2]);
@@ -644,7 +710,7 @@ int operacao_ciA(char **args)
                 }
 
                 fprintf(index_file,"INT:%s:(tree)\n",linha_separada[cont]); //escreve "INT:nomedocampo" no arquivo de indice
-
+                
                 while(fgets(linha,200,tabela)!=NULL){ //loop para leitura dos registros
                     char *linha_copia = malloc(sizeof(char) * (strlen(linha) + 1));
                     strcpy(linha_copia,linha);
@@ -677,7 +743,7 @@ int operacao_ciA(char **args)
     }
     if(!flag)
         printf("O campo %s nao eh valido.\n", args[3]);
-        
+
     free(linha_separada);
     fclose(tabela);
     return 0;
@@ -705,12 +771,15 @@ int operacao_ri(char **args)
 }
 int operacao_gi(char **args)
 {
-    printf("Gera novamente o indice de tabela referente a chave, partindo do zero.\n\n");
+    if(strcmp(args[2],"arvore")==0)
+        operacao_ciA(args);
+    else if(strcmp(args[2],"hash")==0)
+        operacao_ciH(args);
     return 0;
 }
 int operacao_eb(char **args)
 {
-    printf("Gera novamente o indice de tabela referente a chave, partindo do zero.\n\n");
+    printf("Sai do programa\n\n");
     return 0;
 }
 
