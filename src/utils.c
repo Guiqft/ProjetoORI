@@ -108,9 +108,6 @@ char **separar_string(char *linha)
     }
     lista[posicao] = NULL;
 
-    //organizar_lista(lista); //transforma todos os comandos em maiusculo para comparação
-    //no interpretador
-
     return lista;
 }
 
@@ -139,19 +136,20 @@ char **separar_busca(char *linha)
 }
 
 //Função para concatenar o diretório das tabelas em uma string com o nome da tabela
-//Se o seletor for 1, adiciona o "./data/" no começo e o .txt no fim
 //Se o seletor for 0, adiciona apenas o .txt no fim
+//Se o seletor for 1, adiciona o "./data/" no começo e o .txt no fim
 char *adicionar_diretorio(char *nome_tabela, int seletor)
 {
-    char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela) + 11));
+    char *nome_arquivo = (char *)malloc(sizeof(char) * ((int) strlen(nome_tabela) + 15));
     strcpy(nome_arquivo, nome_tabela);
     strcat(nome_arquivo, ".txt");
 
     if (seletor)
     {
-        char *diretorio_arquivos = (char *)malloc(sizeof(char) * ((int) strlen(nome_arquivo)+10));
+        char *diretorio_arquivos = (char *)malloc(sizeof(char) * ((int) strlen(nome_arquivo)+15));
         strcpy(diretorio_arquivos, "./data/");
         strcat(diretorio_arquivos, nome_arquivo);
+        free(nome_arquivo);
         return diretorio_arquivos;
     }
     return nome_arquivo;
@@ -163,12 +161,31 @@ int checar_arquivo_existente(char *nome_tabela)
 {
     DIR *dir;
     struct dirent *lsdir;
+    char *aux;
+    if(strstr(nome_tabela,"index_files")!=NULL){
+        dir = opendir("./data/index_files/");
+        aux = strtok(nome_tabela,"/");
+        aux = strtok(NULL,".");
+        nome_tabela = aux;
+    }else{
+        dir = opendir("./data/");
+    }
 
-    dir = opendir("./data/");
-
-    while ((lsdir = readdir(dir)) != NULL)
-        if (strcmp(maiuscula(lsdir->d_name), maiuscula(adicionar_diretorio(nome_tabela, 0))) == 0)
+    while ((lsdir = readdir(dir)) != NULL){
+        aux = maiuscula(lsdir->d_name); //aux == NOME_DOS_ARQUIVOS.TXT do diretório em ./data/
+        char *aux2 = adicionar_diretorio(nome_tabela, 0); //aux2 == nomedatabela.txt 
+        char *aux3 = maiuscula(aux2);   //NOMEDATABELA.TXT
+        if (strcmp(aux, aux3) == 0){//compara NOME_DOS_ARQUIVOS.TXT com NOMEDATABELA.TXT
+                                    //os nomes estão em maiusculos para casos em que tenha nomes com maiuscula e minusculas misturadas
+            free(aux);
+            free(aux2);
+            free(aux3);
             return 1;
+        }
+        free(aux);
+        free(aux2);
+        free(aux3);
+    }
 
     closedir(dir);
     return 0;
@@ -223,33 +240,91 @@ int verificaIndex(char *nome_tabela){
     diretorio = malloc(sizeof(char) * (strlen(nome_tabela) + 24));
     strcpy(diretorio,"index_files/");
     strcat(diretorio,nome_tabela);
-    strcat(diretorio,"_index_tree"); //Nesse momento, diretorio[] = "index_files/nometabela_index_tree"
+    strcat(diretorio,"_index"); //Nesse momento, diretorio[] = "index_files/nometabela_index_tree"
 
-    if ((index_file = fopen(adicionar_diretorio(diretorio, 1), "r")) != NULL){ //checar o arquivo de indexacao
+    char *aux = adicionar_diretorio(diretorio, 1);
+    if ((index_file = fopen(aux, "r")) != NULL){ //checar o arquivo de indexacao
+        free(diretorio);
         char linha[150];
         fgets(linha,150,index_file);
-        if(strstr(linha, "tree") != NULL)
+        if(strstr(linha, "tree") != NULL){
+            free(aux);
             return 1;
-        else if(strstr(linha,"hash") != NULL)
+        }
+        else if(strstr(linha,"hash") != NULL){
+
+            free(aux);
             return 2;
+        }
     }
     else{
+        free(diretorio);
         return 0;
     }
 }
 
 //Função que recebe o arquivo estrutural da árvore e retorna um ponteiro para a árvore instanciada
-cranbtree_t* mount_tree(FILE* tree_file){
-    char linha[150];
-    cranbtree_t *tree_index = cbt_create(3); //Cria a arvore permitindo até 3 chaves por nó (é o minimo permitido pela biblioteca)
-    fgets(linha, 150, tree_file); //pega a primeira linha para descarte
+//cranbtree_t* mount_tree(char* nome_tabela){
+cranbtree_t * mount_tree(char* nome_tabela){
+    char* name_index_file = (char *) malloc(sizeof(char) * ((int) strlen(nome_tabela)+100));
+    char aux[13] = "index_files/";
+    strcpy(name_index_file, aux);
+    strcat(name_index_file, nome_tabela);
+    strcat(name_index_file, "_index");
 
-    while (fgets(linha, 150, tree_file) != NULL){
-        char *chave = strtok(linha,"|");
-        char *conteudo = strtok(NULL, "|");
-        cbt_insert(tree_index, atoi(chave), conteudo);  //Insere na arvore o registro na arvore com o inteiro como chave
-                                                        //e a localização do registro como conteúdo 
+    FILE* tabela;
+
+    if ((tabela = fopen(adicionar_diretorio(name_index_file, 1), "r")) == NULL)
+    {
+        printf("Erro na abertura do arquivo de indice.\nTente novamente\n\n");
     }
 
+    char linha[150];
+    cranbtree_t *tree_index = cbt_create(3); //Cria a arvore permitindo até 3 chaves por nó (é o minimo permitido pela biblioteca)
+
+    fgets(linha, 150, tabela); //pega a linha de cabeçalho e descarta
+    while(fgets(linha, 150, tabela) != NULL) {
+        int chave = atoi(strtok(linha,"|"));
+        int aux = atoi(strtok(NULL, "|"));
+        cbt_insert(tree_index, chave, &aux);    //Insere na arvore o registro na arvore com o inteiro como chave
+                                                        //e a localização do registro como conteúdo
+    }
+
+    printTree(tree_index);
+    fclose(tabela);
     return tree_index;
+}
+
+//Função que recebe o arquivo estrutural e retorna um ponteiro para a hash instanciada
+map_int_t mount_hash(char* nome_tabela){
+    char* name_index_file = (char *) malloc(sizeof(char) * ((int) strlen(nome_tabela)+100));
+    char p[13] = "index_files/";
+    strcpy(name_index_file, p);
+    strcat(name_index_file, nome_tabela);
+    strcat(name_index_file, "_index");
+
+    FILE* tabela;
+
+    char* aux = adicionar_diretorio(name_index_file, 1);
+    if ((tabela = fopen(aux, "r")) == NULL)
+    {
+        printf("Erro na abertura do arquivo de indice.\nTente novamente\n\n");
+    }
+    free(aux);
+
+    char linha[150];
+    map_int_t m;
+    map_init(&m);
+
+    fgets(linha, 150, tabela); //pega a linha de cabeçalho e descarta
+    while(fgets(linha, 150, tabela) != NULL) {
+        char *chave = strtok(linha,"|");
+        int aux = atoi(strtok(NULL, "|"));
+        map_set(&m, chave, aux);    //Insere na arvore o registro na arvore com o inteiro como chave
+                                                        //e a localização do registro como conteúdo
+    }
+
+    free(name_index_file);
+    fclose(tabela);
+    return m;
 }

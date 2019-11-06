@@ -1,10 +1,10 @@
 all: sgbd
 
-CFLAGS = -W
+CFLAGS = -W -g
 LFLAGS = -Isrc/external/
 
 sgbd: makedir/shell.o makedir/main.o makedir/utils.o makedir/comandos.o
-	gcc -o sgbd makedir/shell.o makedir/main.o makedir/utils.o makedir/comandos.o -g $(CFLAGS) -no-pie -Lsrc/external -lcranbtree
+	gcc -o sgbd makedir/shell.o makedir/main.o makedir/utils.o makedir/comandos.o -g $(CFLAGS) -no-pie -Lsrc/external -lcranbtree -lmap
 makedir/shell.o: src/shell.c makedir/comandos.o makedir/utils.o
 	gcc -o makedir/shell.o -c src/shell.c $(CFLAGS)
 makedir/main.o: src/main.c makedir/utils.o

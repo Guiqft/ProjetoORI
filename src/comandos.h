@@ -9,6 +9,7 @@
 #include "utils.h"
 #include "shell.h"
 #include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
+#include "external/map.h" //Retirado de: https://github.com/rxi/map
 
 int operacao_ct(char **args);
 int operacao_rt(char **args);

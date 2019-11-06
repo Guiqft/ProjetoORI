@@ -1,6 +1,9 @@
 INT:codigo|STR:especie|#
 30|guilherme|#
-35|bruno|#
-33|guilherme|#
-14|guilherme|#
-30|bruno|#
+30|brunao|#
+20|jojo|#
+10|guilhermfasde|#
+4320|guilherm1312e|#
+60|guiadsfasdfase|#
+120|guilherfasdfame|#
+800|guilher|#
