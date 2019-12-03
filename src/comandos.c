@@ -1,4 +1,5 @@
 #include "comandos.h"
+#define BUFF_SIZE 2000
 
 
 int operacao_ct(char **args)
@@ -85,6 +86,7 @@ int operacao_rt(char **args) //apaga o arquivo relativo da tabela e remove seus 
         remove(adicionar_diretorio(diretorio, 1));
 
     free(nome_tabela);
+    free(diretorio);
     return 0;
 }
 
@@ -101,8 +103,8 @@ int operacao_at(char **args) //apresenta um resumos dos metadados da tabela indi
         return 0;
     }
 
-    char *linha = (char *)malloc(sizeof(char) * 150); //aloca espaço para resumo dos metadados
-    fgets(linha, 150, tabela);
+    char *linha = (char *)malloc(sizeof(char) * BUFF_SIZE); //aloca espaço para resumo dos metadados
+    fgets(linha, BUFF_SIZE, tabela);
 
     char **dados = separar_string(linha); //chama funcao para separar a string por espaço, :, ; e |
     int i = 0;
@@ -117,9 +119,9 @@ int operacao_at(char **args) //apresenta um resumos dos metadados da tabela indi
     printf("Campos:\n");
 
     FILE * index_file;
-    char linha_2[150];
+    char linha_2[BUFF_SIZE];
     if((index_file = fopen(adicionar_diretorio(diretorio, 1), "r+")) != NULL){
-        fgets(linha_2, 150, index_file);
+        fgets(linha_2, BUFF_SIZE, index_file);
     }
 
     while (dados[i] != NULL && strcmp(dados[i], "#\n") != 0)
@@ -182,7 +184,7 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
     else{
         FILE *tabela;
         FILE *aux;
-        char *linha = (char *)malloc(sizeof(char) * 150);
+        char *linha = (char *)malloc(sizeof(char) * BUFF_SIZE);
 
         if ((aux = fopen(adicionar_diretorio(nome_tabela, 1), "r")) == NULL)
         {
@@ -190,7 +192,7 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
             return 0;
         }
 
-        fgets(linha, 150, aux); //pega a linha do cabeçalho da tabela
+        fgets(linha, BUFF_SIZE, aux); //pega a linha do cabeçalho da tabela
         //Lê do fluxo para a cadeia de caracteres string até a quantidade de caracteres (tamanho - 1) ser lida
         char **dados = separar_string(linha);
         int i = 0;
@@ -202,6 +204,9 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
                 if (verifica_int(args[j]) == 1)
                 {
                     printf("Argumento invalido em campo INT\n");
+                    free(dados);
+                    free(linha);
+                    free(nome_tabela);
                     return 0;
                 }
             }
@@ -210,6 +215,9 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
                 if (verifica_flt(args[j]) == 1)
                 {
                     printf("Argumento invalido em campo FLOAT\n");
+                    free(dados);
+                    free(linha);
+                    free(nome_tabela);
                     return 0;
                 }
             }
@@ -217,7 +225,10 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
             {
                 if (verifica_str(args[j]) == 1)
                 {
-                    printf("Nao use '#' ou '|'\n");
+                    printf("Nao use '#' ou '|'\n");                    
+                    free(dados);
+                    free(linha);
+                    free(nome_tabela);
                     return 0;
                 }
             }
@@ -226,6 +237,9 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
                 if (verifica_str(args[j]) == 1)
                 {
                     printf("Nao use '#' ou '|'\n");
+                    free(dados);
+                    free(linha);
+                    free(nome_tabela);
                     return 0;
                 }
                 if (checar_arquivo_existente(args[j]) == 0)
@@ -236,9 +250,15 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
                 if ((arquivo = fopen(adicionar_diretorio(args[j], 1), "wb")) == NULL)
                 {
                     printf("Erro na criacao do arquivo binario");
+                    free(dados);
+                    free(linha);
+                    free(nome_tabela);
                     return 0;
                 }
                 fclose(arquivo);
+                free(dados);
+                free(linha);
+                free(nome_tabela);
                 return 0;
                 }
             }
@@ -250,12 +270,15 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
         if ((tabela = fopen(adicionar_diretorio(nome_tabela, 1), "w+")) == NULL)
         {
             printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n", args[1]);
+            free(dados);
+            free(linha);
+            free(nome_tabela);
             return 0;
         }
 
         i = 2;
         
-        char *linha_nova = (char*)malloc(320); //para contar o tamanho final do registro
+        char *linha_nova = (char*)malloc(BUFF_SIZE); //para contar o tamanho final do registro
         
         while (args[i] != NULL)
         {
@@ -296,6 +319,7 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
         fclose(tabela);
         free(dados);
         free(linha);
+        free(linha_nova);
     }
     free(nome_tabela);
     return 0;
@@ -346,9 +370,9 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
         char * nome_arquivo = adicionar_diretorio(nome_tabela, 1);
         tabela = fopen(nome_arquivo, "r+");
 
-        char linha[150];
+        char linha[BUFF_SIZE];
         fseek(tabela, *found, SEEK_SET); //seta o ponteiro para a posição do registro encontrado
-        fgets(linha, 150, tabela);
+        fgets(linha, BUFF_SIZE, tabela);
 
         char *token = strtok(linha, "#\n");
         fprintf(tabela2, "%s#\n", token); //grava o registro encontrado no arquivo de busca
@@ -371,9 +395,9 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
         char * nome_arquivo = adicionar_diretorio(nome_tabela, 1);
         tabela = fopen(nome_arquivo, "r+");
 
-        char linha[150];
+        char linha[BUFF_SIZE];
         fseek(tabela, *found, SEEK_SET); //seta o ponteiro para a posição do registro encontrado
-        fgets(linha, 150, tabela);
+        fgets(linha, BUFF_SIZE, tabela);
 
         char *token = strtok(linha, "#\n");
         fprintf(tabela2, "%s#\n", token); //grava o registro encontrado no arquivo de busca
@@ -382,8 +406,8 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
     }
 
     else{
-        char *linha = (char *)malloc(sizeof(char) * 150);
-        fgets(linha, 150, tabela);
+        char *linha = (char *)malloc(sizeof(char) * BUFF_SIZE);
+        fgets(linha, BUFF_SIZE, tabela);
         char **dados = separar_string(linha);
         int i = 1;
 
@@ -408,9 +432,9 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
         free(dados);
         flag = 0;
 
-        while (fgets(linha, 150, tabela) != NULL)
+        while (fgets(linha, BUFF_SIZE, tabela) != NULL)
         { //Enquanto não chegou no fim do arquivo
-            char *linha_achada = (char *)malloc(sizeof(char) * 150);
+            char *linha_achada = (char *)malloc(sizeof(char) * BUFF_SIZE);
             strcpy(linha_achada, linha);
             char **dados = separar_busca(linha);
             i = 0;
@@ -495,9 +519,9 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
         char * nome_arquivo = adicionar_diretorio(nome_tabela, 1);
         tabela = fopen(nome_arquivo, "r+");
 
-        char linha[150];
+        char linha[BUFF_SIZE];
         fseek(tabela, *found, SEEK_SET); //seta o ponteiro para a posição do registro encontrado
-        fgets(linha, 150, tabela);
+        fgets(linha, BUFF_SIZE, tabela);
 
         char *token = strtok(linha, "#\n");
         fprintf(tabela2, "%s#\n", token); //grava o registro encontrado no arquivo de busca
@@ -520,9 +544,9 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
         char * nome_arquivo = adicionar_diretorio(nome_tabela, 1);
         tabela = fopen(nome_arquivo, "r+");
 
-        char linha[150];
+        char linha[BUFF_SIZE];
         fseek(tabela, *found, SEEK_SET); //seta o ponteiro para a posição do registro encontrado
-        fgets(linha, 150, tabela);
+        fgets(linha, BUFF_SIZE, tabela);
 
         char *token = strtok(linha, "#\n");
         fprintf(tabela2, "%s#\n", token); //grava o registro encontrado no arquivo de busca
@@ -531,8 +555,8 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
     }
 
     else{
-        char *linha = (char *)malloc(sizeof(char) * 150);
-        fgets(linha, 150, tabela);
+        char *linha = (char *)malloc(sizeof(char) * BUFF_SIZE);
+        fgets(linha, BUFF_SIZE, tabela);
         char **dados = separar_string(linha);
         int i = 1;
 
@@ -557,9 +581,9 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
         free(dados);
         flag = 0;
 
-        while ((fgets(linha, 150, tabela) != NULL) && (flag==0))
+        while ((fgets(linha, BUFF_SIZE, tabela) != NULL) && (flag==0))
         { //Enquanto não chegou no fim do arquivo
-            char *linha_achada = (char *)malloc(sizeof(char) * 150);
+            char *linha_achada = (char *)malloc(sizeof(char) * BUFF_SIZE);
             strcpy(linha_achada, linha);
             char **dados = separar_busca(linha);
             i = 0;
@@ -613,12 +637,12 @@ int operacao_ar(char **args) //Apresenta na tabela os valores dos registros reto
         return 0;
     }
 
-    char *linha = (char *)malloc(sizeof(char) * 150);
+    char *linha = (char *)malloc(sizeof(char) * BUFF_SIZE);
     int i = 0, j=0;
 
     printf("Resultado(s) da(s) ultima busca: \n");
 
-    while (fgets(linha, 150, tabela) != NULL)
+    while (fgets(linha, BUFF_SIZE, tabela) != NULL)
     {
         char **dados = separar_busca(linha);
         i = 0;
@@ -658,8 +682,8 @@ int operacao_rr(char **args)
         return 0;
     }
 
-    char linha_busca[150];
-    char linha_dados[150];
+    char linha_busca[BUFF_SIZE];
+    char linha_dados[BUFF_SIZE];
     char *token;
     char *nome_tabela_dados;
     FILE *tabela_dados;
@@ -682,9 +706,9 @@ int operacao_rr(char **args)
 
     int linha_atual = 0;
     
-    while(fgets(linha_busca, 150, tabela_busca) != NULL){
+    while(fgets(linha_busca, BUFF_SIZE, tabela_busca) != NULL){
         linha_atual = 0; //ftell = Retorna o valor atual da posição no arquivo
-        while(fgets(linha_dados, 150, tabela_dados) != NULL){
+        while(fgets(linha_dados, BUFF_SIZE, tabela_dados) != NULL){
             //token = strtok(linha_dados, "\n"); fgets já pega uma linha inteira
             //printf("comparando %s == %s\n", linha_busca, linha_dados);
             if(strcmp(linha_busca, linha_dados) == 0){
@@ -950,7 +974,7 @@ int operacao_arquivo(char **args)
 {
     FILE *arq;
     char *nome_arquivo = args[1];
-    char linha[150];
+    char linha[BUFF_SIZE];
     char *resultado;
     char **argumentos;
     int flag = 0;
@@ -966,7 +990,7 @@ int operacao_arquivo(char **args)
     while (!feof(arq))
     {
         // Lê uma linha (inclusive com o '\n', que é removido com strtok)
-        resultado = remover_espacos_duplos(strtok(fgets(linha, 150, arq), "\n")); // o 'fgets' lê até 150 caracteres ou até o '\n'
+        resultado = remover_espacos_duplos(strtok(fgets(linha, BUFF_SIZE, arq), "\n")); // o 'fgets' lê até BUFF_SIZE caracteres ou até o '\n'
         if (resultado)
         {
             if (strcmp(resultado, "eb") == 0 || strcmp(resultado, "EB") == 0)

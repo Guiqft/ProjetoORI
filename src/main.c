@@ -8,6 +8,8 @@
 #include "utils.h"
 #include "shell.h"
 
+#define BUFF_SIZE 2000
+
 //Função principal
 int main(int argc, char *argv[ ])
 {
@@ -19,12 +21,13 @@ int main(int argc, char *argv[ ])
         if(!strcmp(fim,"txt")){ //Checa se é um arquivo .txt
                                 //Se for, roda o comandos do arquivo
             FILE *arq;
-            char linha[150];
+            char linha[BUFF_SIZE];
             char *resultado;
             char **argumentos;
 
             // Abre o arquivo de comandos
-            arq = fopen(strcat(argv[1],".txt"), "rt");
+            //arq = fopen(strcat(argv[1],".txt"), "rt");
+            arq = fopen(argv[1], "rt");
 
             if (arq == NULL) // Se houve erro na abertura
             {
@@ -35,12 +38,14 @@ int main(int argc, char *argv[ ])
             while (!feof(arq))
             {
                 // Lê uma linha (inclusive com o '\n', que é removido com strtok)
-                resultado = remover_espacos_duplos(strtok(fgets(linha, 150, arq), "\n")); // o 'fgets' lê até 150 caracteres ou até o '\n'
+                resultado = remover_espacos_duplos(strtok(fgets(linha, BUFF_SIZE, arq), "\n")); // o 'fgets' lê até BUFF_SIZE caracteres ou até o '\n'
                 if (resultado)
                     if (strcmp(resultado, "eb") == 0 || strcmp(resultado, "EB") == 0)
                         exit(0);    //Se for o comando de sair, fecha o shell
                     argumentos = separar_string(linha); //Gerador da lista de comandos
                     interpretador(argumentos);    //Interpretador dos comandos
+                    free(resultado);
+                    free(argumentos);
             }
             fclose(arq);
         }

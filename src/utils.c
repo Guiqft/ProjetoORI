@@ -1,4 +1,5 @@
 #include "utils.h"
+#define BUFF_SIZE 2000
 
 
 
@@ -89,7 +90,7 @@ char **organizar_lista(char **lista)
 char **separar_string(char *linha)
 {
     int posicao = 0;
-    char **lista = (char**) malloc(150 * sizeof(char *));
+    char **lista = (char**) malloc(BUFF_SIZE * sizeof(char *));
     char *token;
     int cont = 0;
     
@@ -114,7 +115,7 @@ char **separar_string(char *linha)
 char **separar_busca(char *linha)
 {
     int posicao = 0;
-    char **lista = malloc(150 * sizeof(char *));
+    char **lista = malloc(BUFF_SIZE * sizeof(char *));
     char *token;
     int cont = 0;
 
@@ -245,8 +246,8 @@ int verificaIndex(char *nome_tabela){
     char *aux = adicionar_diretorio(diretorio, 1);
     if ((index_file = fopen(aux, "r")) != NULL){ //checar o arquivo de indexacao
         free(diretorio);
-        char linha[150];
-        fgets(linha,150,index_file);
+        char linha[BUFF_SIZE];
+        fgets(linha,BUFF_SIZE,index_file);
         if(strstr(linha, "tree") != NULL){
             free(aux);
             return 1;
@@ -279,11 +280,11 @@ cranbtree_t * mount_tree(char* nome_tabela){
         printf("Erro na abertura do arquivo de indice.\nTente novamente\n\n");
     }
 
-    char linha[150];
+    char linha[BUFF_SIZE];
     cranbtree_t *tree_index = cbt_create(3); //Cria a arvore permitindo até 3 chaves por nó (é o minimo permitido pela biblioteca)
 
-    fgets(linha, 150, tabela); //pega a linha de cabeçalho e descarta
-    while(fgets(linha, 150, tabela) != NULL) {
+    fgets(linha, BUFF_SIZE, tabela); //pega a linha de cabeçalho e descarta
+    while(fgets(linha, BUFF_SIZE, tabela) != NULL) {
         int chave = atoi(strtok(linha,"|"));
         int aux = atoi(strtok(NULL, "|"));
         cbt_insert(tree_index, chave, &aux);    //Insere na arvore o registro na arvore com o inteiro como chave
@@ -312,12 +313,12 @@ map_int_t mount_hash(char* nome_tabela){
     }
     free(aux);
 
-    char linha[150];
+    char linha[BUFF_SIZE];
     map_int_t m;
     map_init(&m);
 
-    fgets(linha, 150, tabela); //pega a linha de cabeçalho e descarta
-    while(fgets(linha, 150, tabela) != NULL) {
+    fgets(linha, BUFF_SIZE, tabela); //pega a linha de cabeçalho e descarta
+    while(fgets(linha, BUFF_SIZE, tabela) != NULL) {
         char *chave = strtok(linha,"|");
         int aux = atoi(strtok(NULL, "|"));
         map_set(&m, chave, aux);    //Insere na arvore o registro na arvore com o inteiro como chave
