@@ -2,17 +2,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
-#include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
 #include "comandos.h"
 #include "utils.h"
 #include "shell.h"
 
+//Biblioteca para controle de vazamentos de memória (garbage collector)
+#include "external/tgc.h" //Retirado de: https://github.com/orangeduck/tgc
+
 #define BUFF_SIZE 2000
+
+static tgc_t gc;
 
 //Função principal
 int main(int argc, char *argv[ ])
 {
+    tgc_start(&gc, &argc); //Inicialização do gerenciamento automatico da memoria
+
     if (argc == 2){ //Se o nome de um arquivo de comandos foi inserido logo após ./main no terminal
                     //O nome do arquivo está armazenado em argv[1]
         char *fim;
@@ -44,8 +49,6 @@ int main(int argc, char *argv[ ])
                         exit(0);    //Se for o comando de sair, fecha o shell
                     argumentos = separar_string(linha); //Gerador da lista de comandos
                     interpretador(argumentos);    //Interpretador dos comandos
-                    free(resultado);
-                    free(argumentos);
             }
             fclose(arq);
         }
@@ -53,6 +56,7 @@ int main(int argc, char *argv[ ])
         loop_comandos();
     }
 
-    //system ("pause"); //Para windows
+    tgc_stop(&gc);
+
     return 0;
 }

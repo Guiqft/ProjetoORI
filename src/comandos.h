@@ -11,6 +11,9 @@
 #include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
 #include "external/map.h" //Retirado de: https://github.com/rxi/map
 
+//Biblioteca para controle de vazamentos de memória (garbage collector)
+#include "external/tgc.h" //Retirado de: https://github.com/orangeduck/tgc
+
 int operacao_ct(char **args);
 int operacao_rt(char **args);
 int operacao_at(char **args);

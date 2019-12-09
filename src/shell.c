@@ -2,6 +2,8 @@
 #include "comandos.h"
 #include "utils.h"
 
+static tgc_t gc;
+
 //Lista com o nome de todos os comandos
 char *comandos_nomes_maiusculos[] = {"ARQUIVO", "CT", "RT", "AT", "LT", "IR", "BRN", "BRU", "AR", "RR", "CIA", "CIH", "GI", "RI", "EB"};
 char *comandos_nomes[] = {"arquivo", "ct", "rt", "at", "lt", "ir", "brn", "bru", "ar", "rr", "cia", "cih", "gi", "ri", "eb"};
@@ -14,12 +16,12 @@ int (*comandos_funcoes[15])(char **) = {&operacao_arquivo, &operacao_ct, &operac
 //Função para ler a string de comandos
 char *leitura_linha()
 {
-    char *entrada = (char *)malloc(sizeof(char)); //Alocação do vetor
+    char *entrada = tgc_alloc(&gc, sizeof(char));
     int i = 0, j = 2;
 
     while ((entrada[i] = getchar()) != '\n')
     {
-        entrada = (char *)realloc(entrada, sizeof(char) * j);
+        entrada = tgc_realloc(&gc, entrada, sizeof(char) * j);
         i++;
         j++;
     }
