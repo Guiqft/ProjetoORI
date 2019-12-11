@@ -5,7 +5,7 @@ Esta disciplina faz parte da grade curricular dos cursos de Ciência de Computa�
 
 ## Iniciando
 
-Para utilizar o interpretador, basta executar o arquivo "main.exe".
+Para utilizar o interpretador, basta executar o arquivo "sgbd"
 A lista dos comandos disponíveis se encontra logo abaixo.
 
 ## Comandos
