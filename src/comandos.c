@@ -10,7 +10,7 @@ int operacao_ct(char **args)
 
     if (checar_arquivo_existente(nome_tabela)) //verifica se a tabela já existe
     {
-        printf("A tabela %s ja existe.\n\n", args[2]);
+        printf("A tabela %s ja existe.\n\n", args[1]);
         return EXIT_FAILURE; //Executa o comando de encerramento
     }
 
@@ -174,8 +174,12 @@ int operacao_ir(char **args) //insere o registro na tabela, usando a politica de
     char nome_tabela[BUFF_SIZE];
     strcpy(nome_tabela, args[1]); //Realiza a cópia do conteúdo de uma variável a outra
 
-    if(verifica_index(nome_tabela) != 0){
-        printf("A funcao IR contempla indexacao.");
+    int c = verifica_index(nome_tabela);
+    if(c != 0){
+        if (c == 1)
+            printf("Inserção na arvore da tabela '%s'\n", nome_tabela);
+        if (c == 2)
+            printf("Inserção na hash da tabela '%s'\n", nome_tabela);
     }
     else{
         FILE *tabela;
@@ -320,6 +324,8 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
     }
 
     if(verifica_index(nome_tabela) == 1){ //se a tabela conter indexacao tipo arvore
+        printf("Busca pela chave: %d na arvore da tabela %s\n", atoi(args[4]), nome_tabela);
+        return 0;
         // bTree *tree = btCreate(100);
         
         // char diretorio[BUFF_SIZE];
@@ -360,7 +366,7 @@ int operacao_brN(char **args) //Busca na tabela TODOS os registros que satisfaç
     }
 
     else if(verifica_index(nome_tabela)==2){ //se a tabela conter indexacao tipo hash
-        printf("hash\n");
+        printf("Busca pela chave: %d na hash da tabela %s\n", atoi(args[4]), nome_tabela);
         return 0;
     }
 
@@ -449,6 +455,8 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
     }
 
     if(verifica_index(nome_tabela) == 1){ //se a tabela conter indexacao tipo arvore
+        printf("Busca pela chave: %d na arvore da tabela %s\n", atoi(args[4]), nome_tabela);
+        return 0;
         // bTree *tree = btCreate(100);
         
         // char diretorio[BUFF_SIZE];
@@ -489,7 +497,7 @@ int operacao_brU(char **args) //Busca na tabela pelo primeiro registro que satis
     }
 
     else if(verifica_index(nome_tabela)==2){ //se a tabela conter indexacao tipo hash
-        printf("hash\n");
+        printf("Busca pela chave: %d na hash da tabela %s\n", atoi(args[4]), nome_tabela);
         return 0;
     }
 
@@ -629,6 +637,11 @@ int operacao_rr(char **args)
     FILE *tabela_busca;
     FILE *tabela_reuso;
 
+    if(verifica_index(nome_tabela) != 0){
+        printf("Remoção dos registros indexados.\n");
+        return 0;
+    }
+
     if ((tabela_dados = fopen(adicionar_diretorio(nome_tabela, 1), "r+")) == NULL)
     {
         printf("Erro ao abrir o arquivo da tabela %s.\nTente novamente.\n\n", nome_tabela);
@@ -697,15 +710,16 @@ int operacao_ciA(char **args)
         char linha[BUFF_SIZE];
         fgets(linha, BUFF_SIZE, tabela_registros);
 
+        if(verifica_index(nome_tabela) != 0){
+            printf("A tabela '%s' ja apresenta o campo '%s' indexado.\n", nome_tabela, nome_campo);
+            return 0;
+        }
+
         char confirmacao[BUFF_SIZE];
         strcpy(confirmacao, "TRE:");
         strcat(confirmacao, nome_campo); //confirmacao == "TRE:nomecampo"
 
-        if(strstr(linha, confirmacao)){
-            printf("A tabela '%s' ja apresenta o campo '%s' indexado por arvore.\n", nome_tabela, nome_campo);
-            return 0;
-        }
-        else if(!strstr(linha, replace_str(confirmacao, "TRE:", "INT:"))){
+        if(!strstr(linha, replace_str(confirmacao, "TRE:", "INT:"))){
             printf("O campo não existe ou não eh do tipo INT\n");
             return EXIT_FAILURE;
         }
@@ -719,11 +733,11 @@ int operacao_ciA(char **args)
             fseek(tabela_registros, 0, SEEK_SET);
             fprintf(tabela_registros, "%s", replace_str(linha, new_line, confirmacao));
     
-            int i = 0;
-            char** linha_separada;
+            // int i = 0;
+            // char** linha_separada;
 
-            int *keys = malloc(sizeof(int));
-            long int *adresses = malloc(sizeof(long int));
+            // int *keys = malloc(sizeof(int));
+            // long int *adresses = malloc(sizeof(long int));
 
             
             char diretorio[BUFF_SIZE];
@@ -732,31 +746,34 @@ int operacao_ciA(char **args)
             strcat(diretorio, "_index_tree.dat");
 
             FILE *fp;
-            fp = fopen(diretorio, "wb+");
-
-
-            int chave = 0;
-            int tamanho = 0;
-            long int pos = 0;
-
-            element record;
-
-            bTree* tree = btCreate(100); //order 100;
-
-            while(fgets(linha, BUFF_SIZE, tabela_registros) != NULL){
-                tamanho = strlen(linha);
-                pos = ftell(tabela_registros);
-
-                linha_separada = separar_string(linha);
-                chave = atoi(linha_separada[0]);
-
-                record.key = chave;
-                record.data = pos - tamanho;
-
-                btInsert(tree, record, fp);
+            if((fp = fopen(diretorio, "wb+")) == NULL){
+                printf("Nao foi possível criar o arquivo '%s'", diretorio);
+                return EXIT_FAILURE;
             }
 
-            free(linha_separada);
+
+            // int chave = 0;
+            // int tamanho = 0;
+            // long int pos = 0;
+
+            // element record;
+
+            // bTree* tree = btCreate(100); //order 100;
+
+            // while(fgets(linha, BUFF_SIZE, tabela_registros) != NULL){
+            //     tamanho = strlen(linha);
+            //     pos = ftell(tabela_registros);
+
+            //     linha_separada = separar_string(linha);
+            //     chave = atoi(linha_separada[0]);
+
+            //     record.key = chave;
+            //     record.data = pos - tamanho;
+
+            //     btInsert(tree, record, fp);
+            // }
+
+            // free(linha_separada);
             fclose(fp);
         }
     }
@@ -767,7 +784,71 @@ int operacao_ciA(char **args)
 
 int operacao_ciH(char **args)
 {   
-    printf("Necessario implementar uma biblioteca de hash em disco\n");
+    if(!strlen(args[2])){ //se o usuário digitou apenas "ci a"
+        printf("Digite o nome da tabela que deseja indexar.\n");
+        return EXIT_FAILURE;
+    }
+    if(!strlen(args[3])){ //se o usuário digitou apenas "ci a nome_tabela"
+        printf("Digite o nome do campo que deseja indexar.\n");
+        return EXIT_FAILURE;
+    }
+
+    char* nome_tabela = args[2];
+    char* nome_campo = args[3];
+
+    FILE* tabela_registros;
+
+    tabela_registros = fopen(adicionar_diretorio(nome_tabela, 1), "r+");
+    if(tabela_registros != NULL){
+        char linha[BUFF_SIZE];
+        fgets(linha, BUFF_SIZE, tabela_registros);
+
+        if(verifica_index(nome_tabela) != 0){
+            printf("A tabela '%s' ja apresenta o campo '%s' indexado.\n", nome_tabela, nome_campo);
+            return 0;
+        }
+
+        char confirmacao[BUFF_SIZE];
+        strcpy(confirmacao, "HSH:");
+        strcat(confirmacao, nome_campo); //confirmacao == "hsh:nomecampo"
+
+        if(!strstr(linha, replace_str(confirmacao, "HSH:", "INT:"))){
+            printf("O campo não existe ou não eh do tipo INT\n");
+            return EXIT_FAILURE;
+        }
+        else{
+            char new_line[BUFF_SIZE];
+            strcpy(new_line, "INT:");
+            strcat(new_line, nome_campo);
+
+            long int before = ftell(tabela_registros);
+
+            fseek(tabela_registros, 0, SEEK_SET);
+            fprintf(tabela_registros, "%s", replace_str(linha, new_line, confirmacao));
+    
+            // int i = 0;
+            // char** linha_separada;
+
+            // int *keys = malloc(sizeof(int));
+            // long int *adresses = malloc(sizeof(long int));
+
+            
+            char diretorio[BUFF_SIZE];
+            strcpy(diretorio, "./data/index_files/");
+            strcat(diretorio, nome_tabela);
+            strcat(diretorio, "_index_hash.dat");
+
+            FILE *fp;
+            if((fp = fopen(diretorio, "wb+")) == NULL){
+                printf("Nao foi possível criar o arquivo '%s'", diretorio);
+                return EXIT_FAILURE;
+            }
+
+            fclose(fp);
+        }
+    }
+
+    fclose(tabela_registros);
     return 0;
 }
 
@@ -784,10 +865,17 @@ int operacao_ri(char **args)
 
     char* nome_tabela = args[1];
 
+    int c = verifica_index(nome_tabela);
     char diretorio[BUFF_SIZE];
-    strcpy(diretorio, "./data/index_files/");
-    strcat(diretorio, args[1]);
-    strcat(diretorio, "_index_tree.dat");
+    if(c == 1){
+        strcpy(diretorio, "./data/index_files/");
+        strcat(diretorio, args[1]);
+        strcat(diretorio, "_index_tree.dat");
+    }else if(c == 2){
+        strcpy(diretorio, "./data/index_files/");
+        strcat(diretorio, args[1]);
+        strcat(diretorio, "_index_hash.dat");
+    }
 
     if(remove(diretorio) != 0)
         printf("Nao foi possivel apagar o indice, verifique os dados\n");
@@ -798,8 +886,12 @@ int operacao_ri(char **args)
     char linha[BUFF_SIZE];
 
     fgets(linha, BUFF_SIZE, tabela);
-    char* replace = replace_str(linha, "TRE:", "INT:");
-    //replace = replace_str(linha, "HSH:", "INT:");
+
+    char* replace;
+    if(c == 1)
+        replace = replace_str(linha, "TRE:", "INT:");
+    else if (c == 2)
+        replace = replace_str(linha, "HSH:", "INT:");
     
     fseek(tabela, 0, SEEK_SET);
 

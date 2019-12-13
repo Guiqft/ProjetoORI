@@ -1,0 +1,100 @@
+INT:codigo|STR:nome|INT:codigoestado|#
+280|pedro afonso|11|#
+1324|cabedelo|16|#
+4813|laguna carapa|14|#
+2975|vargem bonita|25|#
+3726|bela vista de minas|25|#
+1324|estrela velha|9|#
+1408|treviso|7|#
+801|santaluz|20|#
+1324|araquari|7|#
+4196|tiangua|19|#
+3563|icem|15|#
+2602|rio negro|14|#
+3484|matipo|25|#
+4977|votuporanga|15|#
+2908|ibiraci|25|#
+4394|pianco|16|#
+5269|japora|14|#
+685|barao de cocais|25|#
+2718|uniao do sul|22|#
+1448|barra velha|7|#
+4607|brasilia de minas|25|#
+2263|paranhos|14|#
+3179|perdoes|25|#
+4555|piranhas|13|#
+5375|mato leitao|9|#
+3883|catalao|10|#
+2821|bom conselho|6|#
+1700|ipiranga do norte|22|#
+7|brauna|15|#
+894|agua preta|6|#
+4559|novo santo antonio|4|#
+3691|sao joao evangelista|25|#
+365|bom jesus do norte|27|#
+4170|eugenio de castro|9|#
+3810|clementina|15|#
+444|morro redondo|9|#
+3386|coqueiros do sul|9|#
+16|quatigua|17|#
+1870|toledo|25|#
+298|ramilandia|17|#
+1614|salete|7|#
+2285|ipupiara|20|#
+3077|paulo afonso|20|#
+2958|lavras do sul|9|#
+4717|dario meira|20|#
+4681|cristina|25|#
+141|raposa|23|#
+1254|uiramuta|1|#
+3335|curimata|4|#
+3490|flores|6|#
+5084|saquarema|18|#
+415|bernardino batista|16|#
+920|querencia do norte|17|#
+457|sapucaia|18|#
+654|pareci novo|9|#
+4741|fatima|11|#
+1116|varre-sai|18|#
+55|xambre|17|#
+2506|silva jardim|18|#
+5028|sao paulo de olivenca|8|#
+3668|presidente medici|23|#
+395|ferraz de vasconcelos|15|#
+2869|miguel alves|4|#
+4845|inhacora|9|#
+4942|amparo de sao francisco|3|#
+772|varjota|19|#
+1619|urubici|7|#
+346|rafard|15|#
+5553|navirai|14|#
+2204|pocrane|25|#
+5029|conceicao do coite|20|#
+2440|gado bravo|16|#
+3898|sao jose dos campos|15|#
+1285|sucupira do norte|23|#
+4228|tanquinho|20|#
+2561|chavantes|15|#
+2113|doresopolis|25|#
+1201|belem do piaui|4|#
+1923|nova brasilandia|22|#
+3215|juatuba|25|#
+1162|divisa nova|25|#
+5364|serra azul|15|#
+4269|virmond|17|#
+3921|ribeirao cascalheira|22|#
+1200|theobroma|26|#
+419|guaiuba|19|#
+469|chorrocho|20|#
+3362|paranapoema|17|#
+1730|bertioga|15|#
+4284|xinguara|24|#
+1209|igarassu|6|#
+1023|eldorado|15|#
+2711|bonito|14|#
+3465|brejo do cruz|16|#
+4096|coimbra|25|#
+1203|cambara do sul|9|#
+44|coronel fabriciano|25|#
+4985|contenda|17|#
+3643|mari|16|#

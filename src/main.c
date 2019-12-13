@@ -18,7 +18,7 @@ int main(int argc, char *argv[ ])
         char linha[BUFF_SIZE];
         char *resultado;
         char **argumentos;
-
+        printf("%s\n", argv[1]);
         // Abre o arquivo de comandos
         //arq = fopen(strcat(argv[1],".txt"), "rt");
         arq = fopen(argv[1], "r");
