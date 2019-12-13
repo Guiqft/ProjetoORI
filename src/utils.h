@@ -6,11 +6,6 @@
 #include <string.h>
 #include <stddef.h>
 #include <dirent.h>
-#include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
-#include "external/map.h" //Retirado de: https://github.com/rxi/map
-
-//Biblioteca para controle de vazamentos de memória (garbage collector)
-#include "external/tgc.h" //Retirado de: https://github.com/orangeduck/tgc
 
 char *maiuscula(char *string);
 char *remover_espacos_duplos(char str[]);
@@ -24,8 +19,7 @@ char *adicionar_diretorio(char *nome_tabela, int seletor);
 int checar_arquivo_existente(char *nome_tabela);
 int numero_tabelas();
 char* juntar_string(char **string_dividida);
-int verificaIndex(char *nome_tabela);
-cranbtree_t* mount_tree(char* nome_tabela);
-map_int_t mount_hash(char* nome_tabela);
+int verifica_index(char *nome_tabela);
+char *replace_str(char *str, char *orig, char *rep);
 
 #endif /* UTILS */

@@ -8,11 +8,8 @@
 #include <dirent.h>
 #include "utils.h"
 #include "shell.h"
-#include "external/cranbtree.h" //Retirado de: https://github.com/abdullahemad12/Cranberry-Btree
-#include "external/map.h" //Retirado de: https://github.com/rxi/map
 
-//Biblioteca para controle de vazamentos de memória (garbage collector)
-#include "external/tgc.h" //Retirado de: https://github.com/orangeduck/tgc
+#include "external/btree.h" //retirado de https://github.com/Rahul-RB/B-Tree
 
 int operacao_ct(char **args);
 int operacao_rt(char **args);
